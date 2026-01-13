@@ -7,7 +7,7 @@ python-socketio==5.10.0
 python-engineio==4.9.0
 eventlet==0.33.3
 SQLAlchemy==2.0.23
-pandas==2.1.4
+pandas>=2.2.0  # 2.2.0+ supports Python 3.13
 numpy==1.26.2
 requests==2.31.0
 python-dotenv==1.0.0
