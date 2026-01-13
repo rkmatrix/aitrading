@@ -1,0 +1,23 @@
+<div id="ticker-search-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Search & Add Ticker</h2>
+            <button class="modal-close" onclick="closeModal('ticker-search-modal')">×</button>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+            <input type="text" 
+                   id="ticker-search-input" 
+                   class="search-input" 
+                   placeholder="Search by symbol or company name (e.g., Apple, AAPL)..."
+                   style="width: 100%; height: 40px; font-size: 16px;"
+                   autocomplete="off">
+        </div>
+        
+        <div id="ticker-search-results-modal" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-primary);">
+            <div style="padding: 24px; text-align: center; color: var(--text-secondary);">
+                Start typing to search for tickers...
+            </div>
+        </div>
+    </div>
+</div>

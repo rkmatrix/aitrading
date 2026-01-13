@@ -1,0 +1,10 @@
+rollback_guardian:
+  equity_history_path: data/reports/phase70_equity_history.csv
+  equity_lookback_rows: 200
+  max_drawdown_pct: 15.0
+  max_single_step_drop_pct: 10.0
+  error_flag_path: data/runtime/phase47_errors.json
+  max_critical_errors: 3
+  enable_equity_checks: true
+  enable_error_checks: true
+  dry_run: true

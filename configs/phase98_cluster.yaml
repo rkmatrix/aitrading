@@ -1,0 +1,28 @@
+# configs/phase98_cluster.yaml
+# Phase 98 – Cluster Orchestrator config
+
+poll_interval_sec: 5
+
+processes:
+  - name: supervisor
+    module: runner.phase95_supervisor
+    args:
+      - --config
+      - configs/phase95_supervisor.yaml
+    auto_restart: false     # Phase 95 already handles restarts for Phase 26
+
+  - name: shadow_ml
+    module: runner.phase26_shadow_ml
+    args: []
+    auto_restart: true
+    max_restarts: 5
+
+  - name: shadow_alt
+    module: runner.phase26_shadow_alt
+    args: []
+    auto_restart: true
+    max_restarts: 5
+
+alerts:
+  enabled: true
+  tag: "Phase98Cluster"

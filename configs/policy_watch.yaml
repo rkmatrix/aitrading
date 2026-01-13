@@ -1,0 +1,14 @@
+interval_sec: 5
+registry_path: data/runtime/policy_registry.json
+notify_on_change: true
+
+targets:
+  - type: guardian
+    module: ai.guardian.guardian
+    class: Guardian
+  - type: router
+    module: ai.router.smart_order_router
+    class: SmartOrderRouter
+  - type: executor
+    module: ai.execution.execution_agent
+    class: ExecutionAgent

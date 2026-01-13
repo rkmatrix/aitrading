@@ -1,0 +1,7 @@
+diagnostic:
+  # If a scenario is tagged with "latency" or "chaos" and elapsed_seconds
+  # is above this threshold, it's flagged as a performance degradation.
+  perf_latency_threshold: 3.0
+
+  # Not strictly enforced, but used for confidence info in logs.
+  min_runs_for_confidence: 1

@@ -1,0 +1,22 @@
+mode: LIVE
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+policy:
+  root: models/policies/EquityRLPolicy
+  version: latest
+  device: cpu
+  action_interval: 60        # seconds between decisions
+
+risk:
+  max_position_value: 25000
+  max_drawdown: 0.15
+  confidence_threshold: 0.6
+
+execution:
+  router_config: configs/phase35_router.yaml
+  dry_run: false
+
+logging:
+  file: data/reports/phase50_live_actions.csv
+  level: INFO
+  telegram: true

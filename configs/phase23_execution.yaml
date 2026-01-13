@@ -1,0 +1,65 @@
+version: 23
+mode: LIVE                # LIVE | PAPER | DRY
+log_level: INFO
+
+symbols:
+  - AAPL
+  - MSFT
+  - SPY
+
+clock_hz: 2               # main loop frequency
+
+risk_inherit_from_phase22: true
+
+latency:
+  warmup_pings: 3
+  ping_timeout_ms: 800
+
+router:
+  default_tif: DAY
+  prefer_passive: true
+  score_weights:
+    latency: 0.35
+    fill_quality: 0.30
+    fees: 0.15
+    liquidity: 0.15
+    reliability: 0.05
+  min_venue_score: 0.1
+
+#  Added account section
+account:
+  base_ccy: USD
+  max_position_notional: 25000
+  max_order_notional: 5000
+  max_daily_turnover: 50000
+  max_open_orders: 25
+  allow_short: false
+
+execution:
+  default_style: SMART_SLICE   # VWAP | POV | SMART_SLICE
+  style_params:
+    VWAP:
+      horizon_sec: 900
+      refresh_sec: 5
+      max_child_qty: 25
+      price_offset_bps: 3
+    POV:
+      participation: 0.1
+      refresh_sec: 3
+      max_child_qty: 20
+      price_offset_bps: 2
+    SMART_SLICE:
+      slice_sec: 5
+      slice_random_bps: 20
+      max_child_qty: 15
+      price_offset_bps: 2
+      post_only: true
+
+analytics:
+  baseline_vol_per_sec: 2500
+
+alerts:
+  telegram:
+    enabled: true
+    chat_id_env: TELEGRAM_CHAT_ID
+    token_env: TELEGRAM_BOT_TOKEN

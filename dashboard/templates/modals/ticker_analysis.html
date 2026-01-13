@@ -1,0 +1,128 @@
+<div id="ticker-analysis-modal" class="modal">
+    <div class="modal-content" style="max-width: 1200px; width: 90%;">
+        <div class="modal-header">
+            <h2 class="modal-title" id="analysis-modal-title">Ticker Analysis</h2>
+            <button class="modal-close" onclick="closeModal('ticker-analysis-modal')">×</button>
+        </div>
+        
+        <div class="modal-tabs" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 16px; flex-wrap: wrap;">
+            <button class="tab-btn active" data-analysis-tab="overview">Overview</button>
+            <button class="tab-btn" data-analysis-tab="chart">Chart</button>
+            <button class="tab-btn" data-analysis-tab="trades">Trades</button>
+            <button class="tab-btn" data-analysis-tab="performance">Performance</button>
+            <button class="tab-btn" data-analysis-tab="signals">Signals</button>
+            <button class="tab-btn" data-analysis-tab="risk">Risk</button>
+        </div>
+        
+        <div id="analysis-overview-tab" class="analysis-tab-content active">
+            <div id="ticker-overview-content">
+                <div class="overview-header" style="margin-bottom: 24px;">
+                    <h3 id="overview-company-name" style="font-size: 24px; font-weight: 600; margin-bottom: 8px;"></h3>
+                    <div id="overview-exchange-sector" style="font-size: 14px; color: var(--text-secondary);"></div>
+                </div>
+                
+                <div class="overview-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-label">Current Price</div>
+                        <div class="stat-value" id="overview-price"></div>
+                        <div class="stat-change" id="overview-change"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value" id="overview-market-cap"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">P/E Ratio</div>
+                        <div class="stat-value" id="overview-pe"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Volume</div>
+                        <div class="stat-value" id="overview-volume"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">52W High</div>
+                        <div class="stat-value" id="overview-52high"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">52W Low</div>
+                        <div class="stat-value" id="overview-52low"></div>
+                    </div>
+                </div>
+                
+                <div class="overview-description" style="margin-top: 24px;">
+                    <h4 style="margin-bottom: 12px;">About</h4>
+                    <p id="overview-description" style="color: var(--text-secondary); line-height: 1.6;"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="analysis-chart-tab" class="analysis-tab-content">
+            <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                <button class="btn btn-secondary chart-period-btn active" data-period="1d">1D</button>
+                <button class="btn btn-secondary chart-period-btn" data-period="1w">1W</button>
+                <button class="btn btn-secondary chart-period-btn" data-period="1m">1M</button>
+                <button class="btn btn-secondary chart-period-btn" data-period="3m">3M</button>
+                <button class="btn btn-secondary chart-period-btn" data-period="6m">6M</button>
+                <button class="btn btn-secondary chart-period-btn" data-period="1y">1Y</button>
+            </div>
+            <div id="ticker-chart-container" style="height: 500px; width: 100%;"></div>
+        </div>
+        
+        <div id="analysis-trades-tab" class="analysis-tab-content">
+            <table class="trades-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Side</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody id="ticker-trades-tbody"></tbody>
+            </table>
+        </div>
+        
+        <div id="analysis-performance-tab" class="analysis-tab-content">
+            <div class="metrics-grid" style="margin-bottom: 24px;">
+                <div class="metric-card">
+                    <div class="metric-label">Win Rate</div>
+                    <div class="metric-value" id="analysis-win-rate">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Avg Return</div>
+                    <div class="metric-value" id="analysis-avg-return">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Trades</div>
+                    <div class="metric-value" id="analysis-total-trades">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Cumulative P&L</div>
+                    <div class="metric-value" id="analysis-cumulative-pnl">$0.00</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="analysis-signals-tab" class="analysis-tab-content">
+            <div id="signals-list"></div>
+        </div>
+        
+        <div id="analysis-risk-tab" class="analysis-tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Current Position</div>
+                    <div class="metric-value" id="analysis-position-size">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Exposure %</div>
+                    <div class="metric-value" id="analysis-exposure">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Volatility</div>
+                    <div class="metric-value" id="analysis-volatility">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+# configs/phase96_recovery.yaml
+# Phase 96 – Auto-Recovery Wizard config
+
+legacy_flag_path: data/runtime/trading_disabled.flag
+
+log_files:
+  - path: logs/phase26_realtime.log
+    tail_lines: 80
+  - path: logs/phase93_stability_guardian.log
+    tail_lines: 80
+
+checks:
+  account: true
+  positions: true
+  health_snapshot: true
+
+alerts:
+  enabled: true
+  tag: "Phase96Recovery"

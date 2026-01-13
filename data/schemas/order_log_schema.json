@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrderLog",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "string" },
+    "symbol": { "type": "string" },
+    "side": { "type": "string", "enum": ["buy", "sell"] },
+    "qty": { "type": "number" },
+    "order_type": { "type": "string" },
+    "limit_price": { "type": ["number", "null"] },
+    "fill_price": { "type": ["number", "null"] },
+    "status": { "type": "string" },
+    "fees": { "type": ["number", "null"] },
+    "slippage_bps": { "type": ["number", "null"] },
+    "latency_ms": { "type": ["number", "null"] },
+    "best_bid": { "type": ["number", "null"] },
+    "best_ask": { "type": ["number", "null"] },
+    "mid": { "type": ["number", "null"] },
+    "spread": { "type": ["number", "null"] },
+    "exchange": { "type": ["string", "null"] },
+    "strategy_id": { "type": ["string", "null"] },
+    "order_id": { "type": ["string", "null"] },
+    "parent_id": { "type": ["string", "null"] },
+    "tags": { "type": ["string", "null"] },
+    "cash_before": { "type": ["number", "null"] },
+    "cash_after": { "type": ["number", "null"] }
+  },
+  "required": ["timestamp", "symbol", "side", "qty", "status"],
+  "additionalProperties": true
+}

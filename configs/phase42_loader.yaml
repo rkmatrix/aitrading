@@ -1,0 +1,4 @@
+# Phase 42.1 – Runtime Policy Loader
+manifest_path: data/runtime/current_policy/manifest.json
+strict_checksum: true          # Fail if checksum mismatch
+alert_on_failure: true          # Telegram alert on load failure

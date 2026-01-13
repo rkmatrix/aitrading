@@ -1,0 +1,604 @@
+{
+  "AAPL": {
+    "updates": 4988,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.003795131917687988,
+          "var": 1.880790961315878e-37,
+          "initialized": true
+        },
+        "hits": 618.0,
+        "total": 4988.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -4.290319043536839e-48,
+          "var": 5.427442246397081e-51,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4988.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -4.290319043536839e-48,
+          "var": 5.427442246397081e-51,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4988.0
+      }
+    }
+  },
+  "MSFT": {
+    "updates": 4988,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.01512099067895112,
+          "var": 3.009265538105061e-36,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4988.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -5.685517776906723e-106,
+          "var": 2.8656887103205757e-108,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4988.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -5.685517776906723e-106,
+          "var": 2.8656887103205757e-108,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4988.0
+      }
+    }
+  },
+  "SPY": {
+    "updates": 4985,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.003280203010593618,
+          "var": 1.880790961315663e-37,
+          "initialized": true
+        },
+        "hits": 4873.0,
+        "total": 4985.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 1.5786928566382076e-174,
+          "var": 1.5945669499195834e-177,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4985.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 1.5786928566382076e-174,
+          "var": 1.5945669499195834e-177,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4985.0
+      }
+    }
+  },
+  "AMZN": {
+    "updates": 4983,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.09584492754129241,
+          "var": 4.814824860968094e-33,
+          "initialized": true
+        },
+        "hits": 4941.0,
+        "total": 4983.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 2.842539152433437e-93,
+          "var": 9.08143196994232e-95,
+          "initialized": true
+        },
+        "hits": 4.0,
+        "total": 4983.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 2.842539152433437e-93,
+          "var": 9.08143196994232e-95,
+          "initialized": true
+        },
+        "hits": 4.0,
+        "total": 4983.0
+      }
+    }
+  },
+  "NVDA": {
+    "updates": 4986,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.0019714815796129078,
+          "var": 6.770868894696765e-36,
+          "initialized": true
+        },
+        "hits": 944.0,
+        "total": 4986.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -8.154004812761034e-39,
+          "var": 5.358490096144462e-42,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4986.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -8.154004812761034e-39,
+          "var": 5.358490096144462e-42,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4986.0
+      }
+    }
+  },
+  "CRDO": {
+    "updates": 4985,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.126035293574641,
+          "var": 2.773339119917624e-32,
+          "initialized": true
+        },
+        "hits": 4970.0,
+        "total": 4985.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 1.7672034509420745e-135,
+          "var": 7.424333524853407e-137,
+          "initialized": true
+        },
+        "hits": 3.0,
+        "total": 4985.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 1.7672034509420745e-135,
+          "var": 7.424333524853407e-137,
+          "initialized": true
+        },
+        "hits": 3.0,
+        "total": 4985.0
+      }
+    }
+  },
+  "PLTR": {
+    "updates": 4986,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.030429185690479695,
+          "var": 1.2037062152420243e-35,
+          "initialized": true
+        },
+        "hits": 4929.0,
+        "total": 4986.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 5.753924528887539e-89,
+          "var": 5.836241264617467e-91,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4986.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 5.753924528887539e-89,
+          "var": 5.836241264617467e-91,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4986.0
+      }
+    }
+  },
+  "MTZ": {
+    "updates": 4989,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.04575832402793229,
+          "var": 2.3592641818743653e-33,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4989.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -4.853626406811502e-161,
+          "var": 7.403126994447004e-163,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4989.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -4.853626406811502e-161,
+          "var": 7.403126994447004e-163,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4989.0
+      }
+    }
+  },
+  "ASML": {
+    "updates": 4986,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.015082031828600767,
+          "var": 2.8934503985715958e-12,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4986.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -1.4388564115854503e-10,
+          "var": 7.233625996429086e-13,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4986.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -1.4388564115854503e-10,
+          "var": 7.233625996429086e-13,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4986.0
+      }
+    }
+  },
+  "UNH": {
+    "updates": 4982,
+    "weights": {
+      "ppo": 0.047619047619047616,
+      "momentum": 0.47619047619047616,
+      "meanrev": 0.47619047619047616
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.009253089025108794,
+          "var": 3.009265538105061e-36,
+          "initialized": true
+        },
+        "hits": 102.0,
+        "total": 4982.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -7.805751926870431e-122,
+          "var": 2.407577249574886e-124,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4982.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -7.805751926870431e-122,
+          "var": 2.407577249574886e-124,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4982.0
+      }
+    }
+  },
+  "LLY": {
+    "updates": 4980,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.02174065760990238,
+          "var": 5.898160454685913e-34,
+          "initialized": true
+        },
+        "hits": 4974.0,
+        "total": 4980.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.0,
+          "var": 0.0,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4980.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.0,
+          "var": 0.0,
+          "initialized": true
+        },
+        "hits": 0.0,
+        "total": 4980.0
+      }
+    }
+  },
+  "ORCL": {
+    "updates": 4980,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.022266224364356758,
+          "var": 2.3645387630303013e-21,
+          "initialized": true
+        },
+        "hits": 4937.0,
+        "total": 4980.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 7.964547752925295e-20,
+          "var": 5.911346907575612e-22,
+          "initialized": true
+        },
+        "hits": 4.0,
+        "total": 4980.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 7.964547752925295e-20,
+          "var": 5.911346907575612e-22,
+          "initialized": true
+        },
+        "hits": 4.0,
+        "total": 4980.0
+      }
+    }
+  },
+  "TSLA": {
+    "updates": 4978,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.03740057084027066,
+          "var": 2.3592661426416873e-33,
+          "initialized": true
+        },
+        "hits": 4843.0,
+        "total": 4978.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 3.931960020635257e-38,
+          "var": 4.901918309762704e-40,
+          "initialized": true
+        },
+        "hits": 3.0,
+        "total": 4978.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 3.931960020635257e-38,
+          "var": 4.901918309762704e-40,
+          "initialized": true
+        },
+        "hits": 3.0,
+        "total": 4978.0
+      }
+    }
+  },
+  "QQQ": {
+    "updates": 4979,
+    "weights": {
+      "ppo": 0.9090909090909091,
+      "momentum": 0.045454545454545456,
+      "meanrev": 0.045454545454545456
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.0048239270443416376,
+          "var": 3.28893498827794e-13,
+          "initialized": true
+        },
+        "hits": 4891.0,
+        "total": 4979.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 5.1134713371120775e-11,
+          "var": 8.222337470694944e-14,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4979.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 5.1134713371120775e-11,
+          "var": 8.222337470694944e-14,
+          "initialized": true
+        },
+        "hits": 2.0,
+        "total": 4979.0
+      }
+    }
+  }
+}

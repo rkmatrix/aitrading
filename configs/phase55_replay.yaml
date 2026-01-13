@@ -1,0 +1,32 @@
+mode: DRY_RUN
+log_level: INFO
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+loop:
+  interval_sec: 1.5
+  bursts: 1
+  max_events_per_burst: 15
+
+source:
+  type: dummy
+  dummy:
+    seed: 55
+    event_rate_per_symbol: 2
+
+reward:
+  weights:
+    pnl_realized: 1.0
+    pnl_unrealized: 0.2
+    drawdown_penalty: -0.6
+    slippage_penalty: -0.2
+    risk_penalty: -0.3
+
+sinks:
+  csv_path: data/rewards/phase55_replay_events.csv
+  summary_path: data/reports/phase55_replay_summary.json
+
+replay_buffer:
+  capacity: 200000
+
+telegram:
+  enabled: false

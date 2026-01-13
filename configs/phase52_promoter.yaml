@@ -1,0 +1,23 @@
+# ===========================================================
+# Phase 52 – Policy Promotion Orchestrator
+# ===========================================================
+
+scan_root: models/policies                # root folder containing policy subfolders
+promotion_log: data/reports/promotion_log.csv
+
+# Promotion rules
+reward_min: 0.55          # candidate must at least meet this
+reward_margin: 0.05       # and beat current by at least this margin
+
+# Schedule
+interval_sec: 1800        # if run as a daemon; ignored when runner uses --once
+
+# Optional behavior
+auto_restart: false       # (placeholder) hook to restart executor after promotion
+telegram_alerts: true     # send Telegram alerts if tools/telegram_alerts.py is configured
+
+# Telegram message templates (used only if telegram_alerts=true)
+telegram_templates:
+  candidate_found: "🔎 {policy}: found candidate {to_ver} (reward {to_reward:.3f})"
+  promoted: "✅ {policy} promoted: {from_ver} → {to_ver} (Δ={delta:.3f})"
+  skipped: "⏭️ {policy}: no candidate beats current (cur {cur_reward:.3f})"

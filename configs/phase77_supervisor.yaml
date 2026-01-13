@@ -1,0 +1,22 @@
+# configs/phase77_supervisor.yaml
+# Phase 77 + 84 + 88.2 + 88.3 — MultiPolicySupervisor config
+
+paths:
+  policy_root: models/policies
+  perf_state_path: data/reports/policy_perf_state.json
+
+active_policies:
+  - EquityRLPolicyExecAware
+  - AlphaBrainPolicy
+
+modes:
+  volatility_threshold: 0.02   # above this, treat as high-vol
+  drawdown_limit: 0.10         # 10% drawdown → safety tilt
+
+weights:
+  execution_penalty: 0.5       # how strongly bad execution hurts health_score
+  performance_boost: 0.5       # how strongly pnl helps health_score
+  perf_weight: 0.7             # importance of performance score (Option C)
+  health_weight: 0.3           # importance of health score
+
+num_actions: 3                 # 0=HOLD, 1=BUY, 2=SELL

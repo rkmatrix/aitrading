@@ -1,0 +1,39 @@
+# Phase 20 Execution RL Agent configuration
+env:
+  max_steps: 60
+  tick_bps: 1.0
+  fee_bps: 0.1
+  slip_scale: 0.5
+  action_buckets:
+    - [0.00, 0.00]
+    - [0.05, 0.25]
+    - [0.10, 0.50]
+    - [0.20, 0.75]
+    - [0.35, 1.00]
+
+reward:
+  slippage_weight: 1.0
+  inventory_weight: 0.1
+  timing_weight: 0.05
+  penalty_violations: 5.0
+
+features:
+  lookback: 10
+
+agent:
+  gamma: 0.99
+  lr: 0.001
+  batch_size: 64
+  buffer_size: 50000
+  start_random: 512
+  eps_init: 1.0
+  eps_final: 0.05
+  eps_decay_steps: 20000
+  target_tau: 0.005
+  device: cpu
+
+train:
+  episodes: 50
+  save_every: 10
+  out_dir: models/phase20
+  seed: 42

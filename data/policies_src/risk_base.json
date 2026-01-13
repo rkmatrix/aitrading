@@ -1,0 +1,11 @@
+{
+  "name": "risk_base",
+  "version": "1.0.0",
+  "schema": "risk_policy_v1",
+  "kind": "risk",
+  "rules": {
+    "max_position_usd": 25000,
+    "max_symbol_weight": 0.35,
+    "max_leverage": 1.5
+  }
+}

@@ -1,0 +1,44 @@
+# Phase 21  Real-Time Market Execution Adapter
+mode: "PAPER"         # LIVE | PAPER | DRY_RUN
+account_timezone: "America/Chicago"
+
+symbols:
+  - "AAPL"
+  - "MSFT"
+  - "SPY"
+
+# Order routing defaults
+order_defaults:
+  time_in_force: "day"          # day | gtc
+  type: "limit"                 # market | limit
+  limit_slippage_bps: 5         # for converting signals@mid to limit price
+  qty_round: 1
+
+# Risk guardrails
+risk:
+  max_dollars_per_order: 5000
+  max_qty_per_order: 50
+  max_open_orders_per_symbol: 3
+  max_notional_per_symbol: 20000
+
+# Streams
+streams:
+  provider: "ALPACA"            # ALPACA | CSV
+  csv_glob: "data/ticks/*.csv"  # used only if provider=CSV (DRY_RUN)
+  reconnect_backoff:
+    initial_seconds: 2
+    max_seconds: 60
+
+# Alerts (Telegram)
+alerts:
+  enabled: true
+  only_events:
+    - "ORDER_SUBMITTED"
+    - "ORDER_FILLED"
+    - "ORDER_CANCELED"
+    - "ERROR"
+
+# Logging
+logging:
+  level: "INFO"
+  json: false

@@ -1,0 +1,16 @@
+title: "AITradeBot — Phase 39 Evaluator"
+
+paths:
+  pnl: "data/reports/pnl_history.csv"
+  equity: "data/reports/phase37_equity_history.csv"
+  drift: "data/reports/drift_history.csv"
+
+window_days: 30
+
+# Output JSON snapshot used by later phases (Phase 40+)
+output_path: "data/reports/phase39_portfolio_eval.json"
+
+# Optional Telegram push (tries to import tools.telegram_alerts.notify)
+telegram:
+  enabled: false
+  kind: "guardian"     # "system", "orders", "pnl", "guardian", etc.

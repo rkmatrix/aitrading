@@ -1,0 +1,43 @@
+# Phase 59 — Market Regime Supervisor
+
+mode: PAPER
+
+universe:
+  - SPY
+
+paths:
+  # Price history CSV for regime detection (you can plug your own file here)
+  price_history_file: data/market/spy_daily.csv
+
+  # Where to write current regime state for other phases to consume
+  regime_state_file: data/runtime/phase59_regime_state.json
+
+regime_detection:
+  lookback_bars: 60          # how many last rows to use
+  min_bars: 30               # require at least this many rows
+
+  # Column names in CSV
+  date_column: date
+  close_column: close
+
+  # Volatility thresholds (std dev of daily returns)
+  vol_thresholds:
+    low: 0.010               # < 1% → low vol
+    high: 0.030              # > 3% → high vol
+
+  # Trend thresholds (slope per bar of close price regression on index)
+  trend_thresholds:
+    up: 0.001                # slope > 0.001 → uptrend
+    down: -0.001             # slope < -0.001 → downtrend
+
+# Map regime → policy "profile" tag that other components can react to
+policy_mapping:
+  risk_on:
+    profile: aggressive
+    notes: "Trend up, low volatility, allow larger exposures."
+  risk_off:
+    profile: defensive
+    notes: "Trend down, high volatility, shrink risk / hedge."
+  neutral:
+    profile: balanced
+    notes: "Choppy / mid regime, keep balanced exposure."

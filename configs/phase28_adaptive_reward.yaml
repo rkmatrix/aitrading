@@ -1,0 +1,64 @@
+# Phase 28  Adaptive Reward Fusion & Self-Critique
+version: 1
+enabled: true
+
+reward_fusion:
+  learning_rate: 0.15           # step size for weight updates
+  min_weight: 0.02              # soft floor per signal
+  max_weight: 0.75              # soft cap per signal
+  decay: 0.94                   # EWMA for rolling performance stats
+  softmax_temperature: 1.0
+  zscore_clip: 3.0
+  normalize_mode: "zscore"      # [none|zscore|minmax]
+  combine_mode: "dot"           # dot product over signals
+  seed: 42
+
+signals:
+  # name              enabled  weight  params (per-signal)
+  pnl:
+    enabled: true
+    weight: 0.40
+    params:
+      scale: 1.0
+  risk:
+    enabled: true
+    weight: 0.25
+    params:
+      target_vol: 0.02
+      vol_window: 30
+  slippage:
+    enabled: true
+    weight: 0.10
+    params:
+      scale: 1.0
+  drawdown:
+    enabled: true
+    weight: 0.15
+    params:
+      window: 100
+  hitrate:
+    enabled: true
+    weight: 0.10
+    params:
+      window: 50
+
+self_critique:
+  enabled: true
+  penalties:
+    breach_stop_loss: -0.5      # applied once per breach event
+    exceed_risk_budget: -0.25
+    overtrading: -0.15
+    regime_mismatch: -0.2
+    slippage_spike: -0.1
+  bonuses:
+    trade_within_plan: 0.05
+  thresholds:
+    max_trades_per_hour: 12
+    slippage_spike_bps: 8
+  regime:
+    feature_key: "vol_regime"   # provided by env.info or context
+    allowed: ["low","mid","high"]
+
+feedback_bus:
+  enabled: true
+  queue_size: 5000

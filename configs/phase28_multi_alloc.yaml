@@ -1,0 +1,6 @@
+# Phase 28 — Multi-Symbol Allocator config
+
+max_active_symbols: 3          # We will hold at most 3 symbols simultaneously
+min_abs_score: 0.005            # Minimum |ensemble_score| to consider in LIVE/PAPER
+portfolio_max_gross_weight: 1.00   # Sum of |weights| across symbols ≤ 100% of equity
+per_symbol_max_weight: null    # If set, overrides MicroAllocator's max_weight per symbol

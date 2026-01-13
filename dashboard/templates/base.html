@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AITradingBot Dashboard{% endblock %}</title>
+    
+    <!-- TradingView Lightweight Charts -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <!-- HTMX for dynamic updates -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="theme-dark">
+    <!-- Top Navigation Bar -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <div class="logo">
+                <span class="logo-icon">📈</span>
+                <span class="logo-text">AITradingBot</span>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" 
+                       id="ticker-search" 
+                       class="search-input" 
+                       placeholder="Search ticker (e.g., Apple, AAPL)..."
+                       autocomplete="off">
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="btn-icon" id="theme-toggle" title="Toggle theme">
+                <span>🌓</span>
+            </button>
+            <button class="btn-icon" id="settings-btn" title="Settings">
+                <span>⚙️</span>
+            </button>
+            <div class="user-menu">
+                <span class="user-indicator">●</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="dashboard-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar-left">
+            {% include 'components/bot_control.html' %}
+            {% include 'components/ticker_list.html' %}
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Metrics Bar -->
+            <div class="metrics-bar">
+                {% include 'components/metrics_panel.html' %}
+            </div>
+
+            <!-- Chart Area -->
+            <div class="chart-container">
+                <div id="main-chart" class="chart-wrapper"></div>
+            </div>
+
+            <!-- Bottom Panels -->
+            <div class="bottom-panels">
+                <div class="panel-tabs">
+                    <button class="tab-btn active" data-tab="trades">Trades</button>
+                    <button class="tab-btn" data-tab="logs">Logs</button>
+                    <button class="tab-btn" data-tab="positions">Positions</button>
+                </div>
+                
+                <div class="panel-content">
+                    <div id="trades-tab" class="tab-content active">
+                        {% include 'components/trades_table.html' %}
+                    </div>
+                    <div id="logs-tab" class="tab-content">
+                        {% include 'components/logs_panel.html' %}
+                    </div>
+                    <div id="positions-tab" class="tab-content">
+                        {% include 'components/positions_table.html' %}
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar-right">
+            {% include 'components/calendar_widget.html' %}
+            
+            <div class="widget-container" style="margin-top: 24px;">
+                <h3>Market Status</h3>
+                <div id="market-status-widget">
+                    <div id="market-status-text" style="font-size: 14px; margin-bottom: 8px;">Checking...</div>
+                    <div id="market-status-time" style="font-size: 12px; color: var(--text-secondary);"></div>
+                </div>
+            </div>
+            
+            <div class="widget-container" style="margin-top: 16px;">
+                <h3>Quick Stats</h3>
+                <div id="quick-stats-widget">
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Today's P&L:</span>
+                        <span class="quick-stat-value" id="quick-stat-daily-pnl">$0.00</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Active Positions:</span>
+                        <span class="quick-stat-value" id="quick-stat-positions">0</span>
+                    </div>
+                    <div class="quick-stat-item">
+                        <span class="quick-stat-label">Win Rate Today:</span>
+                        <span class="quick-stat-value" id="quick-stat-win-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="widget-container" style="margin-top: 16px;">
+                <h3>Recent Activity</h3>
+                <div id="recent-activity-widget" style="max-height: 200px; overflow-y: auto;">
+                    <div style="padding: 12px; color: var(--text-secondary); font-size: 12px;">No recent activity</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modals -->
+    {% include 'modals/ticker_search.html' %}
+    {% include 'modals/ticker_analysis.html' %}
+    {% include 'modals/settings.html' %}
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bot_control.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/metrics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/trades.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tickers.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ticker_search_modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ticker_analysis.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/widgets.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

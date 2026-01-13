@@ -1,0 +1,10 @@
+# Phase 100 – Policy Promotion Engine
+leaderboard: "data/reports/phase99_leaderboard.json"
+
+primary_name: "EquityRLPolicy"
+models_root: "models/policies"
+
+promotion:
+  min_imp_sharpe: 0.05
+  min_imp_winrate: 0.02
+  min_imp_dd_reduction: 0.03

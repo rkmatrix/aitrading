@@ -1,0 +1,29 @@
+# Phase 36 – PnL & Reconciliation Layer
+mode: PAPER            # PAPER | LIVE | DRY_RUN
+base_ccy: USD
+timezone: America/Chicago
+
+# Where to read local executions (written by your router/executor)
+local:
+  executions_csv: data/runtime/executions.csv
+  positions_csv: data/runtime/positions_snapshot.csv   # optional (if present, used)
+
+# Broker files (CSV exports or adapter output)
+broker:
+  fills_glob: data/broker/fills_*.csv
+  statements_glob: data/broker/statements_*.csv       # optional
+
+# Prices cache for mark-to-market (optional; if missing, uses last fill price)
+prices:
+  root: data/prices
+  # Each symbol CSV optional schema: ts, close (others ignored). If absent => fallback.
+
+reporting:
+  out_daily_pnl: data/reports/phase36_pnl_daily.csv
+  out_positions: data/reports/phase36_pnl_positions.csv
+  out_recon_deltas: data/reports/phase36_recon_deltas.csv
+
+alerts:
+  enable_telegram: true
+  min_abs_pnl_to_alert: 50.0      # only alert if |today_pnl| >= threshold
+  tag: phase36_pnl

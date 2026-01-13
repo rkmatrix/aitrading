@@ -1,0 +1,38 @@
+mode: PAPER                  # PAPER | LIVE | DRY
+dry_run: true                # hard safety: true means no real orders are sent, regardless of mode
+log_level: INFO
+
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Where Phase 34 saved its target sizes (shares per symbol)
+sizes_path: "data/runtime/phase34_sizes.json"
+
+# Basic risk rails
+risk:
+  max_notional_per_symbol: 25000.0
+  max_qty_per_order: 200
+  blocklist: []             # e.g., ["GME", "AMC"]
+  allow_short: false
+
+router:
+  # You can rank or score them; for now we pick the first enabled broker that passes preflight
+  brokers:
+    - name: "dry"
+      enabled: true
+      weight: 1.0
+      params:
+        fill_price_mode: "mid"   # "mid" | "last" | "close"
+    - name: "alpaca"
+      enabled: false             # flip to true when you’re ready (and set dry_run: false)
+      weight: 1.0
+      params:
+        base_url: "https://paper-api.alpaca.markets"
+        api_key_env: "ALPACA_API_KEY"
+        api_secret_env: "ALPACA_API_SECRET"
+        timeout_sec: 10
+
+account:
+  base_currency: "USD"
+  # Optional: if you keep live positions, we’ll query broker (if supported) for current positions.
+  # In DRY mode, we’ll assume current positions are zero unless you load from a cache file.
+  dry_positions_cache: "data/runtime/dry_positions.json"

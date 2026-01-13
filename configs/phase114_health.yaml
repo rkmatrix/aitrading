@@ -1,0 +1,21 @@
+# configs/phase114_health.yaml
+# Phase 114 – Execution Health & Heartbeat Monitor (core thresholds)
+
+execution_health:
+  enabled: true
+
+  # If we see this many error ticks (ticks that threw exceptions),
+  # we assume execution is unhealthy and fail safe.
+  max_error_ticks: 50
+
+  # Reserved for future use (e.g., force a sanity check if no trades for a long time).
+  warn_ticks_since_trade: 200
+
+  # Option A – hard fail:
+  # Flatten positions, disable trading, raise kill-switch and Telegram alert.
+  flatten_on_unhealthy: true
+  write_kill_flag: true
+
+  kill_flag_path: "data/runtime/trading_disabled.flag"
+  component_name: "phase26_realtime"
+  telegram_kind: "guardian"

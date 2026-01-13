@@ -1,0 +1,59 @@
+{
+  "last_refresh_ts": 1762023609.386909,
+  "clusters": [
+    [
+      "AAPL"
+    ],
+    [
+      "MSFT"
+    ],
+    [
+      "QQQ",
+      "SPY"
+    ],
+    [
+      "AMZN"
+    ],
+    [
+      "NVDA"
+    ],
+    [
+      "CRDO"
+    ],
+    [
+      "PLTR"
+    ],
+    [
+      "MTZ"
+    ],
+    [
+      "ASML"
+    ],
+    [
+      "UNH"
+    ],
+    [
+      "LLY"
+    ],
+    [
+      "ORCL"
+    ],
+    [
+      "TSLA"
+    ]
+  ],
+  "regime": {
+    "avg_abs_corr": 0.297445,
+    "mean_vol": 0.024501,
+    "status": "high_vol",
+    "cap_in_effect": 0.18
+  },
+  "params": {
+    "lookback_days": 60,
+    "corr_threshold": 0.7,
+    "base_cluster_cap": 0.3,
+    "high_corr_threshold": 0.55,
+    "high_vol_threshold": 0.018,
+    "cap_tighten_factor": 0.6
+  }
+}

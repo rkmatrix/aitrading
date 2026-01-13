@@ -1,0 +1,26 @@
+# configs/phase90_pnl_reward.yaml
+# Phase 90 – PnL-Based Reward Engine configuration
+
+reward_components:
+  pnl_weight: 1.0              # raw PnL / equity
+  drawdown_penalty_weight: 1.0 # penalize high drawdown
+  volatility_penalty_weight: 0.5
+  trade_cost_weight: 0.2       # commissions + slippage
+  position_risk_weight: 0.3    # large leverage / convex risk
+
+normalization:
+  equity_scale: 100000.0       # scale PnL relative to this notional
+  max_reward: 5.0
+  min_reward: -5.0
+
+drawdown:
+  lookback_steps: 200
+
+volatility:
+  lookback_steps: 100
+
+io:
+  # Input: replay with raw info, no RL reward
+  input_replay: "data/replay/phase55_replay.jsonl"
+  # Output: enriched replay with 'reward' field
+  output_replay: "data/replay/phase90_pnl_replay.jsonl"

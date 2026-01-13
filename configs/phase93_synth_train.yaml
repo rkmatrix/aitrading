@@ -1,0 +1,17 @@
+# configs/phase93_synth_train.yaml
+# Phase 93 – Synthetic Rare-Event Training
+
+policy:
+  bundle_dir: "models/policies/AlphaBrainPolicy"
+  model_file: "model.zip"
+  device: "cpu"
+
+synthetic:
+  n_episodes: 50
+  episode_length: 256
+  crash_prob: 0.2
+  max_crash_drawdown: 0.4
+
+train:
+  total_timesteps: 50000
+  log_path: "logs/phase93_synth_train.log"

@@ -1,0 +1,48 @@
+# configs/phase89_online.yaml
+# Phase 89 – AlphaBrain Online Learning (Production)
+#
+# This runs as a separate process alongside your live execution loop.
+# It watches a replay JSONL file, periodically micro-trains PPO on the
+# newest samples, and (if safe) swaps updated weights into the policy bundle.
+
+mode: "PAPER"         # or "LIVE" (for logging/meta only)
+
+policy:
+  name: "AlphaBrainPolicy"
+  bundle_dir: "models/policies/AlphaBrainPolicy"
+  model_file: "model.zip"          # SB3 PPO zip file
+
+replay:
+  # This should be written to by your execution / experience patch.
+  # If you already have phase55_replay.jsonl, you can point here instead,
+  # or you can make your Phase 26/27 logger also append to this path.
+  path: "data/replay/phase90_pnl_replay.jsonl"
+
+online_learning:
+  enabled: true
+
+  # Buffer settings
+  max_buffer: 10000        # max samples kept in memory
+  min_buffer: 200          # don't train until we have at least this many
+  train_every_new: 100     # train when this many new samples have arrived since last update
+
+  # Training settings (PPO)
+  train_timesteps: 2048    # PPO.learn(total_timesteps=...) per mini-update
+  device: "cpu"            # "cpu" or "cuda" if you use GPU
+  verbose: 0               # SB3 verbosity for training
+
+  # Safety thresholds
+  kl_threshold: 0.25       # max acceptable KL divergence estimate
+  max_bad_kl_streak: 3     # if we hit unsafe KL this many times in a row, we warn loudly
+
+  # Sampling for safety
+  safety_sample_obs: 128   # number of observations from batch used for KL estimate
+
+loop:
+  poll_interval_sec: 10    # how often to check for new data (seconds)
+  max_idle_iterations: 0   # reserved for future (e.g., stop after N idle loops)
+
+logging:
+  level: "INFO"
+  log_to_file: true
+  file_path: "logs/phase89_online.log"

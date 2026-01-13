@@ -1,0 +1,27 @@
+# configs/phase83_self_learn_update.yaml
+#
+# Phase 83 — Self-Learning Execution-Aware RL
+#
+# This config is used as a base. The reward weights under `reward:` will be
+# auto-tuned by runner.phase83_self_learn_execaware using Execution Alpha stats.
+
+env_id: "TradingEnv-v0"
+
+base_model_path: "models/policies/EquityRLPolicyExecAware/model.zip"
+out_model_path: "models/policies/EquityRLPolicyExecAware/model.zip"
+
+total_timesteps: 20000
+
+# Initial/default weights; will be replaced dynamically.
+reward:
+  slippage_weight: -1.0
+  spread_weight: -0.5
+  latency_weight: -0.0005
+  fill_prob_weight: 1.0
+  clamp_penalty: -0.3
+  pred_block_penalty: -2.0
+  risk_block_penalty: -3.0
+
+ppo:
+  learning_rate: 0.0001
+  gamma: 0.99

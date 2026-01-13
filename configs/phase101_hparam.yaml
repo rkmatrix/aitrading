@@ -1,0 +1,14 @@
+# Phase 101.5 – PPO Hyperparameter Search
+env_id: "TradingEnv-v0"
+
+# Universe for tuning
+symbols:
+  - "SPY"
+  - "QQQ"
+  - "AAPL"
+
+# Number of Optuna trials
+n_trials: 15
+
+# Steps per trial (short runs to evaluate hyperparams)
+trial_steps: 3000

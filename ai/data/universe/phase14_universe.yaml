@@ -1,0 +1,18 @@
+# Minimal sample; extend per your needs
+universe:
+  - symbol: SPY
+    asset_class: equity_etf
+  - symbol: QQQ
+    asset_class: equity_etf
+  - symbol: TLT
+    asset_class: bonds_etf
+  - symbol: GLD
+    asset_class: commodity_etf
+  - symbol: DXY
+    asset_class: fx_proxy
+  - symbol: BTC-USD
+    asset_class: crypto
+
+calendar:
+  trading_days: WEEKDAYS
+  holidays: USA

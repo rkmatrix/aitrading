@@ -1,0 +1,23 @@
+# configs/brokers/alpaca_paper.yaml
+broker_name: "alpaca_paper"
+type: "alpaca"
+enabled: true
+
+# Base URL for paper trading
+base_url: "https://paper-api.alpaca.markets"
+
+# These will be read from environment variables
+key_id_env: "APCA_API_KEY_ID"
+secret_key_env: "APCA_API_SECRET_KEY"
+
+# Default trading settings
+timeout: 10
+max_retries: 3
+account_type: "paper"
+
+# Symbols to allow (optional)
+whitelist: ["AAPL", "MSFT", "TSLA"]
+
+# Logging options
+log_orders: true
+log_path: "data/logs/alpaca_router.log"

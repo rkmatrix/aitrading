@@ -1,0 +1,26 @@
+# configs/phase93_guardian.yaml
+#
+# Phase 93 – Stability Guardian & Circuit Breaker Monitor
+# Phase 94 – Error & Latency Health Monitor
+
+check_interval_sec: 60
+
+max_intraday_loss_pct: 3.0
+max_drawdown_pct: 15.0
+max_gross_exposure_pct: 150.0
+
+kill_switch:
+  enabled: true
+  flag_path: "data/runtime/trading_disabled.flag"
+
+equity_history_path: "data/reports/phase37_equity_history.csv"
+drawdown_lookback: 250
+
+alert:
+  enabled: true
+  min_alert_interval_sec: 300
+
+error_monitor:
+  enabled: true
+  max_error_burst: 5         # max new errors between guardian checks
+  max_tick_latency_sec: 5.0  # if Phase 26 tick slower than this, alert/kill

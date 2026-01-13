@@ -1,0 +1,16 @@
+mode: PAPER
+symbols: [AAPL, MSFT, TSLA]
+tick_interval_sec: 5
+heartbeat_sec: 60
+pnl_interval_sec: 300
+
+guardian:
+  participation_cap: 0.12
+
+rl:
+  default_qty: 5
+  exploration: 0.05
+  max_concurrent: 3
+
+# create a backup stub broker for failover in PAPER/DRY_RUN
+add_backup_broker: true

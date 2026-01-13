@@ -1,0 +1,21 @@
+# configs/phase123_eqm.yaml
+# Phase 123 – Execution Quality Memory (EQM)
+
+# Rolling window of execution records
+window: 50
+
+# Quality score thresholds
+quality_thresholds:
+  low: 0.55      # below this → aggressive clamp
+  medium: 0.70   # below this but >= low → mild clamp
+
+# Aggression scaling based on avg eq_score
+aggression_scale:
+  low_quality: 0.60      # eq_score < low
+  medium_quality: 0.75   # low <= eq_score < medium
+  high_quality: 1.00     # eq_score >= medium
+
+# Logging options
+logging:
+  enabled: true
+  level: "INFO"

@@ -1,0 +1,16 @@
+# configs/phase91_shadow_eval.yaml
+# Phase 91 – Shadow Evaluation Engine
+
+mode: "PAPER"
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+policies:
+  live_policy_path: "models/policies/AlphaBrainPolicy/model.zip"
+  shadow_policy_path: "models/policies/AlphaBrainPolicyCandidate/model.zip"
+
+logging:
+  level: "INFO"
+  file_path: "logs/phase91_shadow_eval.log"
+
+io:
+  shadow_metrics_csv: "data/reports/phase91_shadow_metrics.csv"

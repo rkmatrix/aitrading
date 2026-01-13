@@ -1,0 +1,67 @@
+title: "AITradeBot — Phase 40 Auto-Adjustment"
+
+# Input from Phase 39
+eval_json: "data/reports/phase39_portfolio_eval.json"
+
+# Output snapshot used by allocator/guardian in later phases
+output_json: "data/runtime/phase40_adjustments.json"
+
+# Default symbol universe (used if not derivable elsewhere)
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Base limits (will be scaled up/down by policy based on grade/DD)
+base_limits:
+  max_position_pct: 0.20      # 20% of equity per symbol (soft cap)
+  gross_leverage: 1.0         # total gross / equity
+  order_rate_per_min: 10      # throttle for order submissions
+
+# Policy knobs
+policy:
+  # scaling increments by grade
+  scale_map:
+    "A+": {position_pct_delta: 0.08, leverage_delta: 0.20, throttle_delta: +5}
+    "A":  {position_pct_delta: 0.05, leverage_delta: 0.15, throttle_delta: +3}
+    "A-": {position_pct_delta: 0.03, leverage_delta: 0.10, throttle_delta: +2}
+    "B+": {position_pct_delta: 0.02, leverage_delta: 0.05, throttle_delta: +1}
+    "B":  {position_pct_delta: 0.00, leverage_delta: 0.00, throttle_delta: 0}
+    "C":  {position_pct_delta: -0.05, leverage_delta: -0.10, throttle_delta: -2}
+    "D":  {position_pct_delta: -0.10, leverage_delta: -0.20, throttle_delta: -4}
+    "E":  {position_pct_delta: -0.20, leverage_delta: -0.40, throttle_delta: -6}
+
+  # safety floors/ceilings
+  clamps:
+    max_position_pct_min: 0.05
+    max_position_pct_max: 0.35
+    gross_leverage_min: 0.5
+    gross_leverage_max: 1.8
+    order_rate_min: 2
+    order_rate_max: 30
+
+  # drawdown overrides (apply strongest rule)
+  dd_overrides:
+    # if max drawdown worse than threshold, force stricter settings
+    - {dd_lte: -0.10, max_position_pct_cap: 0.15, gross_leverage_cap: 1.2, order_rate_cap: 8}
+    - {dd_lte: -0.20, max_position_pct_cap: 0.10, gross_leverage_cap: 1.0, order_rate_cap: 5}
+    - {dd_lte: -0.30, max_position_pct_cap: 0.05, gross_leverage_cap: 0.8, order_rate_cap: 3}
+
+# Router weighting preferences by grade
+router:
+  prefer_primary_if_grade_at_least: "B+"
+  backup_weight_on_bad_grades: 0.65
+
+# Guardian risk mode mapping
+guardian:
+  mode_map:
+    "A+": "aggressive"
+    "A":  "aggressive"
+    "A-": "standard"
+    "B+": "standard"
+    "B":  "standard"
+    "C":  "conservative"
+    "D":  "conservative"
+    "E":  "failsafe"
+
+# Optional Telegram push
+telegram:
+  enabled: false
+  kind: "guardian"   # "system","orders","pnl","guardian"...

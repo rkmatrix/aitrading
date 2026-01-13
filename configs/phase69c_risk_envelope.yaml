@@ -1,0 +1,69 @@
+mode: PAPER
+
+limits:
+
+  # ============================================================
+  # TOTAL PORTFOLIO EXPOSURE
+  # ============================================================
+  # Your current exposure = 144% of equity.
+  # Set limit to 180% to allow new trades while staying controlled.
+  max_total_notional_pct: 1.80      # 180% exposure allowed
+  max_leverage: 1.80                # leverage must match
+
+  # Keep absolute limits disabled (legacy fallback)
+  max_total_notional: 999999999
+
+
+  # ============================================================
+  # PER-SYMBOL EXPOSURE
+  # ============================================================
+  # MSFT current exposure ~66% → allow up to 70%
+  max_symbol_notional_pct: 0.70     # 70% of equity per symbol
+  max_symbol_notional: 999999999
+
+
+  # ============================================================
+  # PER-ORDER EXPOSURE
+  # ============================================================
+  # Your bot sends small orders (~$1000).
+  # Allow up to 25% of equity = ~$28k per order.
+  max_order_notional_pct: 0.25
+  max_order_notional: 999999999
+
+
+  # ============================================================
+  # DRAWDOWN & FAILSAFE
+  # ============================================================
+  max_intraday_drawdown_pct: 0.18   # start clamping at -18% DD
+  hard_kill_drawdown_pct: 0.28      # kill switch at -28%
+  soft_clamp: true                  # ALWAYS use soft clamp
+
+
+  # ============================================================
+  # VOLATILITY CONTROLS
+  # ============================================================
+  volatility_soft_cap: 2.0
+  volatility_hard_cap: 4.0
+
+  # Allow shorts (you already have many!)
+  allow_short: true
+
+
+# ===================================================================
+# TELEGRAM
+# ===================================================================
+telegram:
+  enabled: true
+  channel: guardian
+
+
+# ===================================================================
+# REGIME RISK SCALING
+# ===================================================================
+regime:
+  quiet_trend: 1.00
+  rangebound: 0.90
+  volatile_trend: 0.75
+  chaos: 0.50
+  extreme_vol: 0.00
+  unknown: 1.00

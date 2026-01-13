@@ -1,0 +1,18 @@
+# Runtime feature flags for Phase 18
+risk:
+  disable_all: false
+  volatility_throttle: true
+  earnings_halt: true
+  news_halt: false
+
+trading:
+  allow_new_positions: true
+  allow_add_to_winners: true
+  allow_add_to_losers: false
+
+circuit_breakers:
+  halt_on_intraday_dd: true
+  halt_on_daily_dd: true
+
+telemetry:
+  verbose_guardian_logs: true

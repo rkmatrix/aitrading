@@ -1,0 +1,38 @@
+# Phase 41 – Live Policy Synchronizer
+mode: LIVE
+
+output_dir: data/runtime/policies
+registry_path: data/runtime/policy_registry.json
+
+interval_sec: 10
+backoff_sec: 30
+write_atomic: true
+
+notifications:
+  enabled: true
+  channel: system
+
+merge_strategy: prefer_latest_version
+
+schemas:
+  risk_policy_v1:
+    required_fields: ["name", "version", "rules"]
+  routing_policy_v1:
+    required_fields: ["name", "version", "routes"]
+  execution_policy_v1:
+    required_fields: ["name", "version", "payload"]
+
+
+sources:
+  - type: local_dir
+    id: local-default
+    root: data/policies_src
+    patterns: ["*.json", "*.yaml", "*.yml"]
+  # - type: http_json
+  #   id: http-policies
+  #   url: "https://example.com/policies/index.json"
+  # - type: s3_bucket
+  #   id: s3-prod
+  #   bucket: your-bucket
+  #   prefix: policies/
+  #   region: us-east-1

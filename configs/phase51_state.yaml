@@ -1,0 +1,18 @@
+# Phase 51 – Adaptive State Observer config
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Choose one feed: random | csv
+feed:
+  kind: random
+  interval_seconds: 2
+  # for kind: csv, provide a path (one of: wide format or per-symbol files)
+  csv_path: "data/market/minute_bars.csv"   # optional
+
+features:
+  rsi_period: 14
+  vol_window: 20          # rolling window (returns) for volatility
+  delta_window: 5         # lookback for price delta vs SMA
+  vol_avg_window: 10      # average volume window for volumeRatio
+
+logging:
+  snapshot_csv: "data/reports/phase51_state_snapshots.csv"

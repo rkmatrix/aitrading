@@ -1,0 +1,30 @@
+# configs/phase101_auto_retrain.yaml
+# Phase 101 – Auto Retrain Engine (Multi-Symbol OHLCV + Leaderboard + Promotion)
+
+env_id: "TradingEnv-v0"
+
+policy_root: "models/policies"
+out_root: "models/policies"
+
+# Base policy bundle names
+base_policies:
+  - "EquityRLPolicyExecAware"
+  - "AlphaBrainPolicy"
+
+# PPO training steps
+total_timesteps: 100000
+
+shadow_tag: "shadow"
+telegram_alerts: true
+
+run_phase99_after: true
+run_phase100_after: true
+
+# Multi-symbol PPO training universe
+symbols:
+  - "SPY"
+  - "QQQ"
+  - "AAPL"
+  - "MSFT"
+  - "TSLA"
+  - "NVDA"

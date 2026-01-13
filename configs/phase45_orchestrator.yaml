@@ -1,0 +1,31 @@
+# configs/phase45_orchestrator.yaml
+mode: PAPER   # PAPER | LIVE | DRY_RUN
+
+# Upstream phases we trigger
+phase43:
+  module: "runner.phase43_select_and_evolve"
+  config: "configs/phase43_selector.yaml"
+
+phase44:
+  module: "runner.phase44_adaptive_train"
+  config: "configs/phase44_trainer.yaml"
+
+# Files we watch for change
+signals:
+  feedback_csv: "data/reports/policy_feedback.csv"          # written by Phase 42
+  selection_csv: "data/reports/phase43_selection_history.csv"
+  training_csv: "data/reports/phase44_training_log.csv"
+
+# Orchestration policy
+policy:
+  trigger_on_feedback: true         # if new feedback rows appear → run Phase 43 then Phase 44
+  trigger_on_time_minutes: 60       # also run every N minutes even without new feedback (0 disables)
+  min_gap_minutes: 10               # do not re-run more frequently than this
+  max_phase43_per_cycle: 1
+  max_phase44_per_cycle: 1
+  dry_chain: false                  # if true, we log the intended actions but don't run them
+
+state:
+  path: "data/runtime/phase45_state.json"
+
+logging_level: "INFO"

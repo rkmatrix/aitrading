@@ -1,0 +1,21 @@
+# configs/phase46_deployer.yaml
+mode: LIVE
+
+source:
+  training_log_csv: "data/reports/phase44_training_log.csv"
+  policies_dir: "models/policies"
+
+target:
+  live_policy_dir: "models/current_policy"
+
+selection:
+  metric: "sharpe"           # sharpe | score | winrate
+  min_score: 0.0             # filter threshold
+  lookback_days: 7           # consider only recent training logs
+  prefer_newer: true         # tie-break by recency
+
+outputs:
+  deployment_log_csv: "data/reports/phase46_deployment_log.csv"
+  registry_csv: "data/registry/policies.csv"
+
+logging_level: "INFO"

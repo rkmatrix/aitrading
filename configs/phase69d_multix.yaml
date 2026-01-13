@@ -1,0 +1,19 @@
+# Phase 69D – Multi-Exchange Execution Layer
+
+mode: "PAPER"
+
+brokers:
+  - name: "alpaca"
+    kind: "paper"
+    priority: 1
+  - name: "polygon"
+    kind: "feed_only"
+    priority: 2
+  - name: "binance"
+    kind: "paper"
+    priority: 3
+
+routing:
+  mode: "single"
+  default_primary: "alpaca"
+  fallback_sequence: ["alpaca", "binance"]

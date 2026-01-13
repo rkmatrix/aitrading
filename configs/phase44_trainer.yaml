@@ -1,0 +1,24 @@
+# configs/phase44_trainer.yaml
+mode: PAPER                # PAPER | LIVE | DRY_RUN
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+policy_dir: "models/policies"
+env_id: "TradingEnv-v0"
+
+trainer:
+  algo: "ppo"
+  steps_per_variant: 2000
+  eval_every: 500
+  learning_rate: 0.00025
+  gamma: 0.99
+  entropy_coef: 0.01
+  save_every: 1000
+  seed: 44
+  device: "cpu"
+  max_variants_per_run: 2
+
+outputs:
+  training_log_csv: "data/reports/phase44_training_log.csv"
+  selector_state_json: "data/runtime/phase43_selector_state.json"
+
+logging_level: "INFO"

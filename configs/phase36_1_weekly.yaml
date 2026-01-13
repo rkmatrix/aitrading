@@ -1,0 +1,20 @@
+# Phase 36.1 – Weekly PnL Roll-Up & Chart
+timezone: America/Chicago
+base_ccy: USD
+
+inputs:
+  daily_csv: data/reports/phase36_pnl_daily.csv  # from Phase 36
+
+outputs:
+  weekly_csv: data/reports/phase36_weekly_summary.csv
+  chart_png:  data/plots/weekly_pnl.png
+
+rollup:
+  week_ending: SUN            # SUN | FRI | SAT etc. (controls weekly buckets)
+  lookback_weeks: 8
+  daily_chart_lookback_days: 14
+
+alerts:
+  enable_telegram: true
+  min_abs_weekly_pnl_to_alert: 10.0
+  tag: phase36_weekly

@@ -1,0 +1,35 @@
+# configs/phase95_supervisor.yaml
+# Phase 95 – Auto-Restart & Self-Healing Supervisor config
+
+mode: PAPER
+env: PAPER_TRADING
+
+phase26:
+  # Python module for Phase 26 realtime loop
+  module: runner.phase26_realtime_live
+  # Config file used by Phase 26
+  config: configs/phase26_realtime.yaml
+
+supervisor:
+  # How many restarts allowed within restart_window_seconds
+  max_restarts: 10
+  restart_window_seconds: 3600   # 1 hour window
+  cooldown_seconds: 15           # wait 15s before restarting
+
+  # If False: only restart on non-zero exit codes (crash).
+  # If True: also restart on clean exit (exit_code == 0).
+  restart_on_clean_exit: false
+
+  # Kill-switch controls
+  # If env var AITB_KILL_SWITCH is set to 1/true/on/kill, supervisor will not start/restart.
+  kill_switch_env: AITB_KILL_SWITCH
+  # If this file exists and contains {"kill": true} or status like "kill"/"stop"/"on", supervisor stops.
+  kill_switch_file: data/runtime/kill_switch.json
+  kill_grace_seconds: 15
+
+  # If you want to pipe child stdout/stderr explicitly, set to true
+  log_child_output: false
+
+alerts:
+  enable_telegram: true
+  tag: "Phase95Supervisor"

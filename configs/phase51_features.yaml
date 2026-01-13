@@ -1,0 +1,18 @@
+# Phase 51.2 – feature schema + normalization
+features:
+  order: ["priceDelta", "rsi", "volatility", "volumeRatio"]
+  # clip/normalize ranges (min,max). Missing → no clip.
+  ranges:
+    priceDelta: [-0.05, 0.05]
+    rsi: [0, 100]
+    volatility: [0.0, 0.1]
+    volumeRatio: [0.25, 4.0]
+  # scale rules: "minmax" (to 0..1), "standard" (z-like with provided mean/std), or "none"
+  scales:
+    priceDelta: "minmax"
+    rsi: "minmax"
+    volatility: "minmax"
+    volumeRatio: "minmax"
+  # optional mean/std only used if scale="standard"
+  stats: {}
+fill_value: 0.0   # used if a feature is missing from incoming state

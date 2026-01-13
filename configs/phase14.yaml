@@ -1,0 +1,58 @@
+# Cross-Asset Meta-Learner  Phase 14
+version: 1
+seed: 42
+
+# Data universe
+universe_file: ai/data/universe/phase14_universe.yaml
+lookback_bars: 256
+bar_interval: 1d
+
+# Features & experts
+features:
+  - name: xasset_momentum
+    params: { window_short: 20, window_long: 120, method: "ema" }
+  - name: xasset_meanrev
+    params: { window: 10 }
+  - name: macro_regime
+    params: { vix_symbol: "^VIX", regime_windows: [21, 63, 126] }
+
+experts:
+  - name: momentum_expert
+    consumes: [xasset_momentum]
+    params: { scale: 1.0 }
+  - name: meanrev_expert
+    consumes: [xasset_meanrev]
+    params: { scale: 0.5 }
+
+# Aggregation & risk
+aggregator:
+  method: zscore_weighted
+  clip: 3.0
+
+risk:
+  target_vol: 0.12
+  max_weight: 0.25
+  turnover_limit: 0.35
+  cash_symbol: "CASH"
+
+# Training
+train:
+  start: 2018-01-01
+  end: 2025-10-31
+  rebalance: 1W
+  scoring_metric: "sharpe"
+
+# Live
+live:
+  rebalance: 1D
+  broker: "alpaca"
+  paper: true
+  allow_partial_positions: true
+
+# Storage
+storage:
+  sqlite_path: data/meta/meta_state.db
+  table_prefix: phase14_
+
+logging:
+  level: INFO

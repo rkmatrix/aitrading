@@ -1,0 +1,19 @@
+# Phase 61 – Multi-Agent Brain config
+mode: DEMO
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+conflict_threshold: 0.6
+risk_hold_override: true
+
+agents:
+  rl:
+    weight: 1.2
+  signal:
+    weight: 1.0
+  risk:
+    weight: 1.5
+  allocator:
+    weight: 1.0
+  router:
+    weight: 0.8
+    brokers: ["alpaca", "backup"]

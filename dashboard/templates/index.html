@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}AITradingBot Dashboard{% endblock %}
+
+{% block head %}
+<style>
+    /* Additional page-specific styles */
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize dashboard when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Dashboard initialized');
+        // Initialize WebSocket connection
+        initWebSocket();
+        // Load initial data
+        loadMetrics();
+        loadTrades();
+        loadTickers();
+    });
+</script>
+{% endblock %}

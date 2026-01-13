@@ -1,0 +1,29 @@
+phase: 19
+execution:
+  router:
+    enabled: true
+    brokers:
+      - alpaca
+      - dry_run
+  optimizer:
+    adv_window_days: 30
+    impact_coefficient: 0.1
+  strategy:
+    strategy_type: TWAP   # (backward compatible with 'type')
+    duration_minutes: 30
+  slippage_tracker:
+    path: data/execution_logs/slippage_log.csv
+  telegram_alerts:
+    on_execution: true
+
+pnl:
+  csv_path: data/pnl/pnl_log.csv
+  stream:
+    enabled: true
+    poll_seconds: 5          # how often to check for new rows
+    state_path: data/pnl/pnl_stream_state.json
+    # expected columns (minimum): date, symbol, side, qty, fill_price, realized_pnl, pnl_pct
+  weekly_summary:
+    enabled: true
+    week_end: FRIDAY         # one of: MONDAY..SUNDAY
+    chart_out: data/plots/weekly_pnl.png

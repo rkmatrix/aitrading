@@ -1,0 +1,10 @@
+# Phase 42.3 – Policy Feedback Loop
+registry_path: data/policies/registry.json
+manifest_path: data/runtime/current_policy/manifest.json
+feedback_path: data/reports/policy_feedback.csv     # optional log
+telegram_alerts: true
+metrics:
+  - pnl
+  - win_rate
+  - sharpe
+  - drawdown

@@ -1,0 +1,37 @@
+mode: LIVE
+
+# The primary live executor command (pick the one you use)
+executor:
+  cmd: ["python", "-m", "runner.phase26_execute_live", "--config", "configs/phase26_live.yaml"]
+  restart: always            # always | on-failure | never
+  backoff_seconds: 5
+  env: {}
+
+# Safety sidecars
+sidecars:
+  - name: "phase47_guardian"
+    cmd: ["python", "-m", "runner.phase47_rollback_guardian", "--config", "configs/phase47_guardian.yaml"]
+    restart: always
+    backoff_seconds: 5
+    env: {}
+  - name: "phase48_watch_rollback"
+    cmd: ["python", "-m", "runner.phase48_watch_rollback"]
+    restart: always
+    backoff_seconds: 5
+    env: {}
+  - name: "phase43_auto_promote"
+    cmd: ["python", "-m", "runner.phase43_auto_promote", "--poll", "20"]
+    restart: always
+    backoff_seconds: 5
+    env: {}
+
+# Process supervision
+logging:
+  dir: "logs"
+  rotate_mb: 20
+  keep_files: 5
+
+supervisor:
+  health_check_every: 10     # seconds
+  kill_timeout: 10           # seconds on shutdown
+  env: {}                    # global env overrides if needed

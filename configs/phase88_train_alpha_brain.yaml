@@ -1,0 +1,18 @@
+# configs/phase88_train_alpha_brain.yaml
+
+env_id: TradingEnv-v0
+total_timesteps: 50000
+policy_name: AlphaBrainPolicy
+
+ppo:
+  gamma: 0.99
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  ent_coef: 0.0
+  clip_range: 0.2
+  verbose: 1
+
+paths:
+  output_dir: models/policies/AlphaBrainPolicy

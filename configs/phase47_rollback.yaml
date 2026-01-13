@@ -1,0 +1,33 @@
+# ===========================================================
+# Phase 47 – Automated Rollback Guardian Configuration
+# Integrated with Adaptive Recovery Trainer (Phase 48+)
+# ===========================================================
+
+# --- Feedback Source ---
+# Path to the policy performance feedback log produced by Phase 42 feedback loop
+feedback_path: data/reports/policy_feedback.csv
+
+# --- Rollback Log ---
+# Rollback events will be appended here by the guardian
+rollback_log: data/reports/rollback_log.csv
+
+# --- Lookback Window (hours) ---
+# Number of hours of feedback data to analyze for underperformance
+lookback_hours: 24
+
+# --- Reward Threshold ---
+# If average reward_metric < this threshold → rollback triggered
+reward_threshold: 0.45
+
+# --- Monitoring Interval (seconds) ---
+# How often to re-scan all deployed policies for performance issues
+interval_sec: 1800  # every 30 minutes
+
+# --- Telegram Alerts (optional) ---
+# If true, the guardian will send Telegram notifications when rollback or recovery occurs.
+telegram:
+  enabled: true
+  alert_types: "guardian,system"
+  msg_templates:
+    rollback: "⚠️ Rollback triggered for policy {policy} (avg reward={reward:.3f})"
+    recovery: "🤖 Recovery retraining started for {policy}"

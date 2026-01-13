@@ -1,0 +1,54 @@
+# Phase 92 – Multi-Agent Fusion Engine
+# ------------------------------------
+# Controls how the fusion engine blends:
+#   - ML AlphaZoo agent
+#   - Execution PPO agent
+#   - Momentum agent
+#   - Regime/Risk agent
+
+phase: 92
+name: "MultiAgentFusionEngine"
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+agents:
+  ml_alphazoo:
+    enabled: true
+    base_weight: 0.40
+    kind: "ml"
+    # path to AlphaZoo config/model if needed
+    model_path: "models/alphazoo/model.zip"
+
+  execution_ppo:
+    enabled: true
+    base_weight: 0.25
+    kind: "execution"
+    model_path: "models/policies/ExecutionRLPolicy/model.zip"
+
+  momentum:
+    enabled: true
+    base_weight: 0.20
+    kind: "momentum"
+    lookback_bars: 20
+
+  regime_risk:
+    enabled: true
+    base_weight: 0.15
+    kind: "regime_risk"
+    # thresholds for regime labels
+    high_vol_threshold: 0.6
+    deep_dd_threshold: 0.15
+
+fusion:
+  # weight shifts based on environment
+  vol_sensitivity: 0.6        # when realized vol > this, go defensive
+  dd_sensitivity: 0.10        # when drawdown > this, go defensive
+  trend_boost_threshold: 0.30 # when |trend| > this, favor trend agent
+  ml_var_high: 0.40           # when ML variance > this, downweight ML
+  min_weight: 0.02            # min weight for enabled agents after normalization
+
+  # safety clamp on final exposure adjustments (e.g. for scaling)
+  max_exposure_multiplier: 1.5
+
+logging:
+  level: "INFO"
+  fusion_log_path: "data/reports/phase92_fusion_log.csv"

@@ -1,0 +1,8 @@
+# configs/phase100_dashboard.yaml
+# Phase 100 – Online Metrics Dashboard
+
+paths:
+  phase89_log: "logs/phase89_online.log"
+  shadow_metrics_csv: "data/reports/phase91_shadow_metrics.csv"
+  fused_targets_csv: "data/reports/phase92_fused_targets.csv"
+  pnl_replay: "data/replay/phase90_pnl_replay.jsonl"

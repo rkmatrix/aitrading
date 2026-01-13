@@ -1,0 +1,199 @@
+failure_harness:
+
+  target:
+    module: "runner.phase122_harness_target"
+    callable: "main"
+    args: []
+    kwargs: {}
+
+  scenarios:
+
+    # ---------------------------------------------------------
+    # BROKER FAILURES
+    # ---------------------------------------------------------
+    - name: "Broker outage – place_order exception"
+      tags: ["broker", "critical"]
+      repeat: 1
+      patches:
+        - target: "ai.utils.alpaca_client.AlpacaClientAdapter.place_order"
+          mode: "raise"
+          exception: "RuntimeError"
+          message: "Simulated Alpaca outage"
+
+    - name: "Broker malformed response"
+      tags: ["broker", "malformed"]
+      repeat: 1
+      patches:
+        - target: "ai.utils.alpaca_client.AlpacaClientAdapter.place_order"
+          mode: "return"
+          return_value: {"bad": "structure"}
+
+    - name: "Broker negative fills"
+      tags: ["broker", "negative"]
+      repeat: 1
+      patches:
+        - target: "ai.utils.alpaca_client.AlpacaClientAdapter.place_order"
+          mode: "return"
+          return_value:
+            {
+              "ok": True,
+              "id": "X1",
+              "raw": None,
+              "error": None,
+              "filled_qty": -10,
+              "filled_avg_price": -5.0
+            }
+
+    - name: "Broker APIError simulation"
+      tags: ["broker", "apierror"]
+      repeat: 1
+      patches:
+        - target: "ai.utils.alpaca_client.AlpacaClientAdapter.place_order"
+          mode: "raise"
+          exception: "RuntimeError"
+          message: "Simulated Alpaca APIError"
+
+
+    # ---------------------------------------------------------
+    # MARKET DATA FAILURES
+    # ---------------------------------------------------------
+    - name: "Market data last price None"
+      tags: ["data", "none"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.market_feed.get_last_price"
+          mode: "return"
+          return_value: None
+
+    - name: "Market data quote None"
+      tags: ["data", "none"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.market_feed.get_quote"
+          mode: "return"
+          return_value: None
+
+    - name: "Market data latency spike"
+      tags: ["data", "latency"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.market_feed.get_last_price"
+          mode: "delay"
+          delay_seconds: 5
+
+
+    # ---------------------------------------------------------
+    # PORTFOLIO BRAIN FAILURE
+    # ---------------------------------------------------------
+    - name: "PortfolioBrain NaN weights"
+      tags: ["portfolio", "nan"]
+      repeat: 1
+      patches:
+        - target: "ai.allocators.portfolio_brain.PortfolioBrain.compute_weights"
+          mode: "return"
+          return_value: {"AAPL": .nan, "MSFT": .nan}
+
+    - name: "PortfolioBrain internal error"
+      tags: ["portfolio", "exception"]
+      repeat: 1
+      patches:
+        - target: "ai.allocators.portfolio_brain.PortfolioBrain.compute_weights"
+          mode: "raise"
+          exception: "ValueError"
+          message: "Simulated PortfolioBrain error"
+
+
+    # ---------------------------------------------------------
+    # POSITION SIZER FAILURE
+    # ---------------------------------------------------------
+    - name: "PositionSizer negative shares"
+      tags: ["position", "negative"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.position_sizer.PositionAllocator.compute_sizes"
+          mode: "return"
+          return_value: {"AAPL": {"shares": -50}, "MSFT": {"shares": -25}}
+
+
+    # ---------------------------------------------------------
+    # POLICY FAILURE
+    # ---------------------------------------------------------
+    - name: "Policy returns NaN vector"
+      tags: ["policy", "nan"]
+      repeat: 1
+      patches:
+        - target: "ai.policy.multi_policy_supervisor.MultiPolicySupervisor.predict"
+          mode: "return"
+          return_value: [ .nan, .nan ]
+
+    - name: "Policy crash"
+      tags: ["policy", "exception"]
+      repeat: 1
+      patches:
+        - target: "ai.policy.multi_policy_supervisor.MultiPolicySupervisor.predict"
+          mode: "raise"
+          exception: "RuntimeError"
+          message: "Simulated policy computation failure"
+
+
+    # ---------------------------------------------------------
+    # RISK ENVELOPE
+    # ---------------------------------------------------------
+    - name: "RiskEnvelope blocks all orders"
+      tags: ["risk", "block"]
+      repeat: 1
+      patches:
+        - target: "ai.risk.risk_envelope.RiskEnvelopeController.block_order"
+          mode: "return"
+          return_value: True
+
+    - name: "RiskEnvelope clamp exception"
+      tags: ["risk", "exception"]
+      repeat: 1
+      patches:
+        - target: "ai.risk.risk_envelope.RiskEnvelopeController.clamp"
+          mode: "raise"
+          exception: "ValueError"
+          message: "Simulated clamp error"
+
+
+    # ---------------------------------------------------------
+    # SLIPPAGE MODEL FAILURES
+    # ---------------------------------------------------------
+    - name: "Slippage negative"
+      tags: ["slippage", "negative"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.slippage_predictor.SlippagePredictor.predict"
+          mode: "return"
+          return_value: -0.20
+
+    - name: "Slippage model explosion"
+      tags: ["slippage", "exception"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.slippage_predictor.SlippagePredictor.predict"
+          mode: "raise"
+          exception: "RuntimeError"
+          message: "Simulated slippage model crash"
+
+
+    # ---------------------------------------------------------
+    # ROUTER FAILURES
+    # ---------------------------------------------------------
+    - name: "SmartOrderRouter malformed output"
+      tags: ["router", "malformed"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.smart_order_router.SmartOrderRouter.route_order"
+          mode: "return"
+          return_value: {"broken": True}
+
+    - name: "SmartOrderRouter exception"
+      tags: ["router", "exception"]
+      repeat: 1
+      patches:
+        - target: "ai.execution.smart_order_router.SmartOrderRouter.route_order"
+          mode: "raise"
+          exception: "RuntimeError"
+          message: "Simulated router crash"

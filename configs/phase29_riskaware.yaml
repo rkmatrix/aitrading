@@ -1,0 +1,54 @@
+mode: PAPER
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+starting_cash: 100000
+max_steps: 300
+
+alpaca:
+  key_id: ""
+  secret_key: ""
+  trading_url: "https://paper-api.alpaca.markets"
+  data_url: "https://data.alpaca.markets/v2"
+
+risk_aware:
+  max_daily_drawdown: 0.2
+  max_trade_risk: 0.01         # 1% of equity risk per symbol per decision
+  vol_window: 120
+  vol_aggregate: "position"     # equal | position
+  atr_window: 14                # ATR lookback (proxy)
+  atr_multiplier: 1.5           # per-share risk ~= ATR * multiplier
+  vol_throttle:
+    low_vol: 0.6
+    mid_vol: 1.0
+    high_vol: 1.4
+  vol_thresholds:
+    low: 0.012
+    high: 0.030
+  cooldown_period: 10
+  notify_telegram: false
+  telegram_tag: "phase29_guard"
+
+reward_fusion:
+  window: 200
+  weights:
+    pnl: 0.45
+    stability: 0.15
+    risk: 0.20
+    momentum: 0.10
+    sharpe: 0.05
+    rl_feedback: 0.05
+  rl_feedback:
+    key: "advantage"
+    scale: 0.5
+    clip: 1.0
+  momentum:
+    mode: "ema"
+    alpha: 0.25
+  sharpe:
+    floor: 1e-4
+
+execution:
+  commission_per_share: 0.005   # $0.005/share (typical IBKR tiered vibe)
+  min_commission: 1.00          # $1 minimum
+  slippage_bps: 2               # 2 bps walk the book
+  allow_partial: true           # if risk cap smaller than target, take partial

@@ -1,0 +1,32 @@
+mode: PAPER                 # LIVE | PAPER | DRY_RUN
+poll_interval: 3            # seconds between ticks
+symbols: ["AAPL", "MSFT", "TSLA"]
+max_positions: 3
+
+risk_guardian:
+  max_drawdown: 0.05        # 5%
+  max_position_size: 0.33   # 33% of equity
+
+cooldown:
+  enabled: true
+  minutes: 15                  # pause trading for X minutes after breaker
+  on_error_breaker: true
+  on_drawdown_breaker: true
+breaker:
+  error_limit: 5               # consecutive loop errors before breaker
+  hard_dd_mult: 2.0            # breaker at (max_drawdown * hard_dd_mult)
+
+broker:
+  adapter: "alpaca"
+  base_url: "https://paper-api.alpaca.markets"
+  key: "${ALPACA_KEY}"
+  secret: "${ALPACA_SECRET}"
+
+telegram:
+  enabled: true
+  chat_id: "${TELEGRAM_CHAT_ID}"
+  token: "${TELEGRAM_BOT_TOKEN}"
+
+logging:
+  level: INFO
+  file: "logs/phase25_realtime.log"

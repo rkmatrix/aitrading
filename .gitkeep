@@ -1,0 +1,2 @@
+# This file ensures empty directories are tracked in Git
+# Some hosting platforms require certain directories to exist

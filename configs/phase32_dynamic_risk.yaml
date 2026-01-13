@@ -1,0 +1,18 @@
+# Phase 32 – Dynamic Risk Adjustment Config
+
+mode: PAPER
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+adaptive_params:
+  lookback_volatility: 60         # bars
+  pnl_window: 50                  # recent trades
+  min_exposure: 0.3
+  max_exposure: 0.9
+  min_drawdown: 0.05
+  max_drawdown: 0.25
+  adjust_step: 0.05               # step size for adapting limits
+  cool_down: 300                  # seconds between adjustments
+
+logging:
+  level: INFO
+  log_file: logs/phase32_dynamic_risk.log

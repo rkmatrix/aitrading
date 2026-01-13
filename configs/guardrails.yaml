@@ -1,0 +1,26 @@
+# configs/guardrails.yaml
+# Phase F — Guardrails (hard blocks only)
+# Missing file = SAFE DEFAULT (no behavior change)
+
+enabled: true
+
+# Where daily counters are stored (safe if missing)
+state_path: data/runtime/guardrails_state.json
+
+# Optional symbol filters
+allowed_symbols: []        # e.g. ["AAPL","MSFT","TSLA"]
+blocked_symbols: []        # e.g. ["GME","AMC"]
+
+# Shorting protection
+allow_short: false
+
+# Trade frequency limits
+max_trades_per_day: 6
+max_trades_per_symbol_per_day: 3
+
+# Notional caps (USD)
+max_notional_per_order: 5000
+max_notional_per_symbol: 12000
+
+# Gross exposure cap (percentage of equity)
+max_gross_exposure_pct: 0.35

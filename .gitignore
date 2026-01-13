@@ -1,0 +1,182 @@
+# Environment variables (DO NOT COMMIT SECRETS!)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# ============================================
+# DATA FILES - DO NOT COMMIT
+# ============================================
+
+# Training and market data
+data/*.csv
+data/*.parquet
+data/features/
+data/backtests/
+data/broker/
+data/market/
+data/history/
+data/experience/
+data/replay/
+data/runtime_bars/
+
+# BUT keep policy source templates
+!data/policies_src/
+
+# Runtime state and logs
+data/runtime/
+data/runtime_trace/
+data/logs/
+data/cache/
+data/tmp/
+data/plots/
+data/confidence/
+data/memory/
+
+# Reports and analytics
+data/reports/
+data/pnl/
+data/rewards/
+data/meta/
+data/trades/
+data/orders/
+data/registry/
+data/execution_logs/
+data/ledger/
+data/live/
+data/online/
+data/calibration/
+data/hparams/
+
+# Generated policy files (keep policies_src/)
+data/policies/
+
+# Log files
+*.log
+*.log.*
+*.jsonl
+
+# ============================================
+# MODEL FILES - DO NOT COMMIT
+# ============================================
+
+# Trained models and checkpoints
+models/
+*.pt
+*.pth
+*.h5
+*.keras
+*.joblib
+*.pkl
+*.zip
+*.npy
+*.npz
+*.onnx
+*.pb
+*.tflite
+*.ckpt
+*.safetensors
+
+# Model checkpoints directory
+models/checkpoints/
+models/policies/
+models/current_policy/
+models/alpha/
+models/regime/
+models/phase*/
+models/ppo_*/
+
+# ============================================
+# DASHBOARD DATA - DO NOT COMMIT
+# ============================================
+
+# Dashboard database and runtime data
+dashboard/data/
+dashboard/dashboard/data/
+dashboard/data/dashboard.db
+dashboard/dashboard/data/dashboard.db
+dashboard/__pycache__/
+
+# ============================================
+# CONFIGURATION STATE - DO NOT COMMIT
+# ============================================
+
+# Generated configuration files
+*.disabled
+configs/*.disabled
+
+# ============================================
+# OLD/BACKUP FILES - DO NOT COMMIT
+# ============================================
+
+# Old script versions
+phase26_realtime_live_PHASE_E_IDLE_NO_SYNTHETIC_FINAL.py
+
+# ============================================
+# JUPYTER NOTEBOOK
+# ============================================
+
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ============================================
+# OS FILES
+# ============================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# TEMPORARY AND BACKUP FILES
+# ============================================
+
+*.tmp
+*.bak
+*.backup
+*~
+.#*
+\#*#
+.*.swp
+.*.swo

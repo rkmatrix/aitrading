@@ -1,0 +1,3 @@
+router:
+  route_strategy: adaptive
+  router_scores: data/runtime/router_scores.json

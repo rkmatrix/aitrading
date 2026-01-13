@@ -1,0 +1,96 @@
+# ============================================
+# AITradingBot - Root Requirements
+# ============================================
+# This file combines dependencies for both the trading bot and dashboard
+# Install with: pip install -r requirements.txt
+
+# ============================================
+# CORE DEPENDENCIES
+# ============================================
+
+# Environment and configuration
+python-dotenv>=1.0.0
+
+# Data manipulation
+pandas>=2.1.4
+numpy>=1.26.2
+
+# Configuration files
+PyYAML>=6.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Date/time handling
+python-dateutil>=2.8.2
+
+# ============================================
+# TRADING BOT DEPENDENCIES
+# ============================================
+
+# Alpaca API for trading
+alpaca-trade-api>=3.2.0
+
+# Reinforcement Learning (if using RL policies)
+# Uncomment if you need RL functionality:
+# gym>=0.26.0
+# gymnasium>=0.28.0
+# stable-baselines3>=2.0.0
+
+# Machine Learning (if using ML models)
+# Uncomment if you need ML functionality:
+# scikit-learn>=1.3.0
+# torch>=2.0.0
+# tensorflow>=2.13.0
+
+# ============================================
+# DASHBOARD DEPENDENCIES
+# ============================================
+
+# Flask web framework
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-SocketIO==5.3.6
+Flask-CORS==4.0.0
+Flask-Migrate==4.0.5
+
+# WebSocket support
+python-socketio==5.10.0
+python-engineio==4.9.0
+eventlet==0.33.3
+
+# Database
+SQLAlchemy==2.0.23
+
+# Market data (free APIs)
+yfinance>=0.2.0
+finnhub-python>=2.4.0
+
+# WebSocket compatibility
+# Note: websockets version conflict between yfinance (>=13.0) and alpaca-trade-api (<11)
+# Using websockets 10.4 for alpaca compatibility - yfinance may have issues
+# If not using alpaca-trade-api, you can use: websockets>=13.0
+websockets>=13.0
+
+# System utilities
+psutil>=5.9.0
+
+# ============================================
+# OPTIONAL DEPENDENCIES
+# ============================================
+
+# Telegram alerts (optional)
+# python-telegram-bot>=20.0
+
+# Additional data sources (optional)
+# alpha-vantage>=2.3.1
+# polygon-api-client>=1.13.0
+
+# ============================================
+# NOTES
+# ============================================
+# 1. Some dependencies are commented out - uncomment if needed
+# 2. ML/RL dependencies are optional - only needed if using those features
+# 3. For production deployment, pin exact versions for stability
+# 4. Dashboard requirements are included here for convenience
+# 5. Install dashboard-only dependencies: pip install -r dashboard/requirements.txt

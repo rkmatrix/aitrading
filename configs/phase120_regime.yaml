@@ -1,0 +1,23 @@
+# configs/phase120_regime.yaml
+# Phase 120 – Macro Regime Detection
+
+regime:
+  enabled: true
+
+  # How often Phase 26 should refresh regime (in ticks)
+  interval_ticks: 60
+
+  # Macro features CSV (optional but recommended)
+  # Expected columns (at least these):
+  #   date,vix,spx_ret_20d,yield_curve_10y_2y_bps
+  macro_features_path: "data/macro/regime_features.csv"
+
+  # Where the current regime state is written
+  state_path: "data/runtime/regime_state.json"
+
+  thresholds:
+    vix_risk_off: 25.0       # VIX >= 25 → strongly risk-off
+    vix_risk_on: 18.0        # VIX <= 18 → risk-on
+    spx_ret_risk_off: -0.05  # 20d SPX return <= -5% → risk-off
+    spx_ret_risk_on: 0.03    # 20d SPX return >= +3% → risk-on
+    curve_inverted_bps: -10.0  # 10y-2y <= -10 bps → inverted curve

@@ -1,0 +1,65 @@
+# Portfolio Correlation Limits Configuration
+# Prevent over-concentration in correlated assets
+
+max_portfolio_correlation: 0.7  # Max average correlation
+max_sector_exposure: 0.40  # Max 40% per sector
+correlation_window_days: 20  # Rolling window for correlation
+min_correlation_samples: 10  # Minimum samples for reliable correlation
+
+# Sector mapping
+sector_mapping:
+  tech:
+    - AAPL
+    - MSFT
+    - GOOGL
+    - GOOG
+    - AMZN
+    - META
+    - NVDA
+    - TSLA
+    - AMD
+    - INTC
+  finance:
+    - JPM
+    - BAC
+    - GS
+    - MS
+    - WFC
+    - C
+    - BLK
+    - SCHW
+  healthcare:
+    - JNJ
+    - PFE
+    - UNH
+    - ABT
+    - TMO
+    - ABBV
+    - MRK
+    - LLY
+  consumer:
+    - WMT
+    - HD
+    - MCD
+    - NKE
+    - SBUX
+    - TGT
+    - LOW
+  industrial:
+    - BA
+    - CAT
+    - GE
+    - HON
+    - UPS
+    - RTX
+    - LMT
+  energy:
+    - XOM
+    - CVX
+    - COP
+    - SLB
+    - EOG
+    - MPC
+
+# State file
+state_file: "data/meta/correlation_state.json"

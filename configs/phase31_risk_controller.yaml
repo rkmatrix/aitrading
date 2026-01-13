@@ -1,0 +1,20 @@
+# Phase 31  Portfolio Risk Controller Configuration
+
+mode: PAPER
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+risk_limits:
+  max_total_exposure: 0.80       # 80% of total portfolio value
+  max_symbol_exposure: 0.35      # single-symbol cap
+  max_drawdown: 0.15             # 15% max drawdown
+  volatility_window: 30          # days or steps for volatility calc
+  rebalance_interval: 300        # seconds between risk checks
+
+actions:
+  auto_reduce_positions: true    # scale positions when breached
+  halt_on_breach: true           # stop trading on breach
+  telegram_alerts: true          # send alert via tools.telegram_alerts
+
+logging:
+  level: INFO
+  log_file: logs/phase31_risk_controller.log

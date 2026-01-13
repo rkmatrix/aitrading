@@ -1,0 +1,9 @@
+# configs/phase64_decision_dashboard.yaml
+# Phase 64 – Decision Monitoring Dashboard config
+
+title: "Phase 64 – Multi-Agent Decision Monitor"
+
+logs:
+  # Default to LIVE decision recorder outputs (from Phase 26 + Phase 63 wiring)
+  csv_path: "data/reports/phase63_live.csv"
+  jsonl_path: "data/reports/phase63_live.jsonl"

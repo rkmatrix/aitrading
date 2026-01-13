@@ -1,0 +1,15 @@
+mode: LIVE
+monitor_interval: 300       # seconds
+performance_thresholds:
+  max_drawdown: 0.12
+  sharpe_min: 0.8
+  feedback_min: 0.65
+rollback_rules:
+  lookback_days: 10
+  min_trades: 10
+  revert_to: "last_stable"  # can be 'last_stable' or explicit version
+notifications:
+  enabled: true
+  telegram_channel: "guardian"
+logging:
+  report_path: data/reports/rollback_log.csv

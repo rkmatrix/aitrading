@@ -1,0 +1,23 @@
+# Phase 27 — Micro Allocator (Moderate profile)
+
+profile: "moderate"
+
+# Ignore tiny/noisy fused scores
+signal_floor: 0.05       # abs(fused) below this → no trade
+
+# If the desired change in weight is small, skip to avoid churn
+rebalance_band: 0.01     # 1% of equity
+
+# Max/min exposure per symbol
+max_weight: 0.20         # 20% of equity per symbol (LIVE/PAPER)
+min_weight: 0.01         # At least 1% when we decide to have exposure
+
+# DEMO mode can be more aggressive if you want
+demo_max_weight: 0.40    # 40% of equity per symbol in DEMO
+
+# Volatility scaling
+vol_floor: 0.5           # below = very low vol → scale up
+vol_ceiling: 2.5         # above = high vol → scale down
+
+# Round quantities to nearest N shares
+qty_rounding: 1

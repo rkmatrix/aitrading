@@ -1,0 +1,31 @@
+# Phase 24: Risk Guardian + Circuit Breakers + Idempotent Routing
+mode: "LIVE"            # LIVE or DRY_RUN
+log_level: "INFO"
+brokers:
+  alpaca:
+    latency: 0.05
+
+routing:
+  min_repeat_seconds: 10       # idempotency TTL per (symbol, side, qty, tag)
+  max_orders_per_minute: 5     # burst guard
+
+risk:
+  enable_daily_loss_limit: true
+  max_daily_loss: -250.0       # USD; if PnL <= this, block new orders
+  allow_flatten_only_below_limit: true   # allow only closing orders when tripped
+
+pnl_source:
+  # If you already have a PnL CSV, point here (optional for smoke test)
+  csv_path: "data/pnl/daily_pnl.csv"   # columns: date, pnl
+  timezone: "America/Chicago"
+
+runtime:
+  flags_dir: "data/runtime/flags"
+  locks_dir: "data/runtime/locks"
+  heartbeats_dir: "data/runtime/heartbeats"
+
+alerts:
+  enable_telegram: true
+  telegram_token: "${TELEGRAM_BOT_TOKEN}"
+  telegram_chat_id: "${TELEGRAM_CHAT_ID}"
+  dashboard_url: "https://app.alpaca.markets/dashboard/overview"

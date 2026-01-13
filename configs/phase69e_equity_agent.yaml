@@ -1,0 +1,21 @@
+# Phase 69E – Equity Growth Agent
+
+mode: "PAPER"
+
+aggression:
+  min_factor: 0.5
+  max_factor: 1.5
+
+  # Drawdown regimes
+  chill_dd_pct: 0.02      # <2% → OK
+  caution_dd_pct: 0.05    # 2–5% → moderate
+  defense_dd_pct: 0.10    # 5–10% → strong defense
+
+slope:
+  window: 20              # number of points to consider
+  boost_threshold: 0.001  # above → boost aggression
+  cut_threshold: -0.001   # below → reduce aggression
+
+telegram:
+  enable: true
+  tag: "phase69e_equity_agent"

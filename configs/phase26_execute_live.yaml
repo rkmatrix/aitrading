@@ -1,0 +1,22 @@
+phase: 26
+symbols: ["AAPL", "MSFT", "TSLA"]
+model_path: "artifacts/phase26/best.zip"
+
+execution:
+  default_order_type: "MARKET"
+  min_slice_shares: 5
+  max_slice_shares: 500
+  min_interval_sec: 1
+  max_interval_sec: 10
+  limit_offset_bps_max: 10
+  participation_cap: 0.12
+
+safety:
+  guardian_enforced: true
+  kill_on_vol_spike: true
+  max_drawdown_bps: 50
+
+broker:
+  adapter: "alpaca"
+  tag: "phase26_live"
+  paper: true

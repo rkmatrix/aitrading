@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=sqlite:///dashboard/data/dashboard.db
+    volumes:
+      - ./dashboard:/app/dashboard
+      - ./data:/app/data
+      - ./.env:/app/.env
+    restart: unless-stopped

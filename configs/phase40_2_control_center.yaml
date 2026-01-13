@@ -1,0 +1,24 @@
+title: "AITradeBot — Control Center (Phase 40.2)"
+
+paths:
+  eval_json: "data/reports/phase39_portfolio_eval.json"
+  adj_json: "data/runtime/phase40_adjustments.json"
+  last_state_json: "data/runtime/phase40_last_state.json"
+  live_log: "data/runtime/phase40_live.log"
+
+# Auto refresh seconds (UI can override with a slider)
+refresh_seconds: 30
+
+# Panel options
+panels:
+  show_metrics_table: true
+  show_limits_table: true
+  show_router_pie: true
+  show_guardian_mode: true
+  show_log_tail: true
+  log_tail_lines: 200
+
+# Theme hints (Streamlit native theme still applies)
+theme:
+  base: "dark"
+  primaryColor: "#06a77d"

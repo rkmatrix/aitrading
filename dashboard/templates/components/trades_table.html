@@ -1,0 +1,30 @@
+<div class="trades-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600;">Trade History</h3>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="trades-filter" placeholder="Filter..." class="search-input" style="width: 200px;">
+            <button class="btn btn-secondary" id="export-trades-btn">Export CSV</button>
+        </div>
+    </div>
+    
+    <table class="trades-table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Symbol</th>
+                <th>Side</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>P&L</th>
+            </tr>
+        </thead>
+        <tbody id="trades-tbody">
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-secondary);">
+                    No trades yet
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,23 @@
+# Phase 69B – Real-Time Policy Blending Engine
+
+mode: "PAPER"
+
+policies:
+  # Logical names for policies – you’ll map them to actual objects in your runners.
+  - name: "rl_equity"
+    base_weight: 0.5
+  - name: "trend"
+    base_weight: 0.3
+  - name: "momentum"
+    base_weight: 0.2
+
+blend:
+  # How much to tilt toward RL when confidence is high
+  rl_confidence_boost: 0.5      # max additional weight
+
+  # Volatility regime adjustments
+  high_vol_boost_momentum: 0.2
+  low_vol_boost_trend: 0.2
+
+  # Smooth normalization epsilon
+  min_total_weight: 0.001

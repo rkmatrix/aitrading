@@ -1,0 +1,39 @@
+# configs/phase63_decision_audit.yaml
+# Phase 63 – Multi-Agent Decision Audit & Explainability Log
+
+mode: DEMO  # DEMO | PAPER | LIVE
+
+symbols:
+  - AAPL
+  - MSFT
+  - TSLA
+
+# MultiAgentBrain settings
+conflict_threshold: 0.6
+risk_hold_override: true
+
+agents:
+  rl:
+    weight: 1.2
+  signal:
+    weight: 1.0
+  risk:
+    weight: 1.5
+  allocator:
+    weight: 1.0
+  router:
+    weight: 0.8
+    brokers: ["alpaca", "backup"]
+
+# ExecutionPipeline gating rules
+min_confidence: 0.4
+min_qty: 1.0
+
+# Broker / router integration
+broker:
+  use_router: true  # If false, uses DummyBrokerExecutor (no real orders)
+
+# Decision recorder output
+logs:
+  jsonl_path: "data/reports/phase63_decisions.jsonl"
+  csv_path: "data/reports/phase63_decisions.csv"

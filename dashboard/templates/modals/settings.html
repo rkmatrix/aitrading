@@ -1,0 +1,53 @@
+<div id="settings-modal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Settings</h2>
+            <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+        </div>
+        
+        <div class="settings-content">
+            <div class="settings-section">
+                <h3 style="margin-bottom: 12px;">Appearance</h3>
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <input type="radio" name="theme" value="dark" checked>
+                    Dark Theme
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="radio" name="theme" value="light">
+                    Light Theme
+                </label>
+            </div>
+            
+            <div class="settings-section" style="margin-top: 24px;">
+                <h3 style="margin-bottom: 12px;">Notifications</h3>
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <input type="checkbox" id="notify-trades" checked>
+                    Trade executions
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <input type="checkbox" id="notify-errors" checked>
+                    Errors
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="notify-kill-switch" checked>
+                    Kill switch activation
+                </label>
+            </div>
+            
+            <div class="settings-section" style="margin-top: 24px;">
+                <h3 style="margin-bottom: 12px;">API Configuration</h3>
+                <div style="font-size: 12px; color: var(--text-secondary);">
+                    Mode: <span id="settings-mode">PAPER</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                    API Key: <span id="settings-api-key">••••••••</span>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 8px; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="closeModal('settings-modal')">Cancel</button>
+            <button class="btn btn-primary" id="save-settings-btn">Save</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+# configs/phase123_meta_stability.yaml
+# Phase 123 – Meta-Stability Engine (Moderate)
+
+mode: moderate
+# Phase 123 – Execution Quality Memory config
+
+window: 50   # last 50 fills used to compute eq_score + aggression scaling
+
+
+# Sliding window lengths (ticks)
+micro_window: 3      # ultra-short micro stability window
+macro_window: 30     # primary macro drift window
+vol_window: 150      # long volatility cycle window
+
+# Stability thresholds (0–1)
+stable_threshold: 0.65
+unstable_threshold: 0.45
+
+# Hysteresis + cooldown behavior
+cooldown_seconds: 2.5   # soft freeze duration when entering "unstable" regime
+
+# Clamp factors applied to FusionEngine outputs
+clamp:
+  freeze: 0.40          # when decision_freeze = True
+  unstable: 0.55        # when regime = "unstable" but not frozen
+  stable: 0.85          # when regime = "stable"
+
+# Logging controls
+logging:
+  enabled: true
+  level: "INFO"

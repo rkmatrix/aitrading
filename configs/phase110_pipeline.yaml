@@ -1,0 +1,10 @@
+# Phase 110 – Daily Auto Pipeline
+#
+# This phase is meant to be run once per day (e.g. via Windows Task Scheduler).
+# It will:
+#   1) Trigger Phase 101 (which does retrain + Phase 99 + Phase 100).
+#   2) Optionally send Telegram notifications.
+
+phase101_config: "configs/phase101_auto_retrain.yaml"
+
+telegram_alerts: true

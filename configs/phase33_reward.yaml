@@ -1,0 +1,65 @@
+# configs/phase33_reward.yaml
+phase: 33
+name: "Volatility-Aware Reward Fusion"
+
+env:
+  id: "TradingEnv-v0"
+  mode: "PAPER"
+  seed: 42
+
+reward:
+  # Global defaults
+  returns_window: 60
+  equity_window: 300
+  vol_metric: "ewma"          # fallback if per-asset not specified
+  vol_span: 20
+  aggregate_mode: "weighted_mean"  # "weighted_mean" | "max" | "mean"
+
+  # Per-asset volatility choices (optional)
+  # If your env populates info["asset_returns"] = {SYMBOL: ret, ...}, these apply.
+  assets:
+    - name: "AAPL"
+      vol_metric: "ewma"
+      vol_span: 10
+      returns_window: 40
+      weight: 1.5
+    - name: "MSFT"
+      vol_metric: "realized"
+      returns_window: 60
+      weight: 1.0
+    - name: "TSLA"
+      vol_metric: "ewma"
+      vol_span: 30
+      returns_window: 80
+      weight: 2.0
+
+  thresholds:
+    vol_low: 0.004
+    vol_high: 0.020
+  weights:
+    pnl: 1.0
+    vol_penalty: 1.25
+    dd_penalty: 0.75
+    trade_cost: 1.0
+  risk_multipliers:
+    base: 1.0
+    low_vol: 1.10
+    high_vol: 0.60
+  penalty_scales:
+    vol: 1.0
+    dd: 1.0
+  clamp_reward: 10.0
+
+train:
+  steps: 256
+  episodes: 2
+  algo: "ppo"
+
+logging:
+  level: "INFO"
+  reward_debug_every: 25
+  tensorboard:
+    enabled: true
+    log_dir: "runs/phase33"
+    flush_every: 50
+    fallback_csv: true

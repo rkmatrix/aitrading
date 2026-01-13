@@ -1,0 +1,94 @@
+# configs/phase122_guardrails.yaml
+# Phase 122.3 – Auto Guardrails
+# Runtime safety rails derived from Phase 122 failure harness logs
+# and static thresholds for key components.
+
+mode: ENABLED          # ENABLED | DRY_RUN | DISABLED
+log_level: INFO        # DEBUG | INFO | WARNING | ERROR
+
+logs:
+  # Output from Phase 122 Failure Harness (JSONL; one record per failure/anomaly)
+  failure_log_path: "data/reports/phase122_failures.jsonl"
+  learn_from_failures: true
+  # How far back to scan historical failures when building auto-rules
+  lookback_days: 14
+  min_occurrences_for_rule: 3
+
+# Global account / portfolio safety rails
+global_limits:
+  # Hard kill-switches
+  max_equity_drawdown_pct: 5.0       # If total equity drawdown > 5% from session start → block new risk
+  max_daily_loss_pct: 2.5            # If daily PnL < -2.5% → block or downgrade risk
+  max_open_positions: 25             # Cap number of concurrent open positions
+  max_notional_per_symbol: 25000.0   # Hard cap per symbol across all positions (USD)
+  max_total_notional: 200000.0       # Total notional at risk
+
+components:
+
+  smart_order_router:
+    max_retries: 2
+    block_on_broker_errors: true
+    max_notional_per_order: 10000.0
+    max_qty_per_order: 200
+    # If broker errors cluster for a symbol, auto-ban it temporarily
+    auto_symbol_quarantine_min: 10    # minutes
+
+  portfolio_brain:
+    max_turnover_pct_per_day: 80.0    # Cap portfolio turnover per day
+    min_holding_period_min: 5         # Avoid hyper-churn from policy
+    max_target_weight_abs: 0.25       # Max abs weight per symbol
+
+  market_feed:
+    max_staleness_sec: 5              # If quotes older than this, block trading
+    max_missing_bars_in_row: 3        # If data gaps, pause trading
+
+  rl_policy:
+    max_position_change_pct: 50.0     # Max relative position delta per decision
+    max_trade_frequency_per_min: 12   # Max decisions that modify positions per minute
+    block_on_nan_actions: true        # If RL returns NaNs → block & downgrade
+
+  position_sizer:
+    max_leverage: 2.0
+    min_order_notional: 50.0
+    clamp_notional_to_limits: true
+
+# Static hand-written rules (can be extended by auto-learned rules)
+rules:
+  - id: router_notional_clamp
+    component: smart_order_router
+    event: route_order
+    metric: notional
+    op: "<="
+    threshold: 10000.0
+    action: clamp
+    clamp_to: 10000.0
+    severity: WARNING
+    message: "Clamping order notional to 10k per order."
+
+  - id: router_block_large
+    component: smart_order_router
+    event: route_order
+    metric: notional
+    op: ">"
+    threshold: 15000.0
+    action: block
+    severity: ERROR
+    message: "Blocking abnormally large order."
+
+  - id: feed_stale_block
+    component: market_feed
+    event: tick
+    metric: staleness_sec
+    op: ">"
+    threshold: 5.0
+    action: block
+    severity: ERROR
+    message: "Market data stale; blocking trading."
+
+auto_rules:
+  enabled: true
+  # When deriving rules from failure_log_path, we look for patterns
+  # like repeated exceedances of a numeric metric for the same component/event.
+  default_action: block
+  default_op: "<="
+  safety_margin_pct: 5.0    # e.g. use 95% of observed failure value as threshold

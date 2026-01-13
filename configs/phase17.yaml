@@ -1,0 +1,47 @@
+seed: 42
+log_path: "data/logs/orders/*.csv"
+calibration_path: "data/calibration/phase17_exec_calibration.json"
+train_cache: "data/cache/phase17_exec_dataset.parquet"
+
+env:
+  max_steps_per_episode: 2048
+  episode_length_minutes: 120
+  randomize_start: true
+  symbols: ["AAPL", "MSFT", "SPY", "TSLA"]
+  inventory_limit: 500
+  base_cash: 1_000_000
+  spread_floor_bps: 0.2
+  tick_size: 0.01
+  allowed_actions:
+    - market
+    - join
+    - improve
+    - cancel
+
+simulator:
+  fill_lat_ms_mean: 120
+  fill_lat_ms_std: 80
+  cancel_prob: 0.08
+  impact:
+    a_bps: 3.5
+    sigma_bps: 2.0
+  passive_fill_prob_at_spread: 0.35
+  improve_fill_boost: 0.4
+  join_fill_boost: 0.15
+  market_slippage_extra_bps: 1.0
+
+reward:
+  shortfall_weight: 1.0
+  inventory_weight: 0.0005
+  latency_weight: 0.001
+  fill_bonus: 0.05
+
+ppo:
+  total_timesteps: 500_000
+  n_steps: 1024
+  batch_size: 256
+  learning_rate: 3.0e-4
+  ent_coef: 0.01
+
+model:
+  exec_policy_path: "models/phase17_exec_ppo.zip"

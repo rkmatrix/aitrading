@@ -1,0 +1,15 @@
+name: risk_base
+version: "1.1.0"
+schema: risk_policy_v1
+kind: risk
+rules:
+  max_position_usd: 25000       # Maximum dollar exposure per position
+  max_symbol_weight: 0.35       # Max portfolio weight per symbol
+  max_leverage: 1.5             # Max allowable leverage
+  stop_loss_pct: 0.05           # Optional: auto-stop if drawdown exceeds 5%
+  take_profit_pct: 0.15         # Optional: auto-take-profit at +15%
+metadata:
+  description: Base risk policy for AITradeBot – applies across all symbols.
+  created_by: system
+  last_updated: 2025-11-16
+source_id: local-default

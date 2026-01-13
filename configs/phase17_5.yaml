@@ -1,0 +1,26 @@
+# Phase 17.5  PnL Tracker + Weekly Summary
+telegram:
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+  chat_id: "${TELEGRAM_CHAT_ID}"   # e.g., -1001234567890 or 123456789
+  disable_preview: true
+  # parse_mode: null   # keep null for plain text; avoids Bad Request: can't parse entities
+
+data:
+  live_trades_csv: "data/live/trades.csv"        # auto-created if missing
+  weekly_reports_dir: "data/reports/weekly"      # JSON summaries saved here
+
+alpaca:
+  # Optional. If present and CSV missing, we'll try to pull fills + positions.
+  base_url: "https://paper-api.alpaca.markets"   # or live URL
+  api_key: "${ALPACA_API_KEY}"
+  api_secret: "${ALPACA_API_SECRET}"
+
+pnl_tracker:
+  notify_each_closed_trade: true        # send alert when position is closed (realized PnL)
+  notify_daily_close: true              # send end-of-day summary PnL if script run EOD
+  trading_hours_tz: "America/New_York"  # for daily grouping if needed
+
+weekly_summary:
+  lookback_days: 7
+  send_telegram: true
+  top_symbols: 5

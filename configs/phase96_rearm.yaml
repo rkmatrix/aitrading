@@ -1,0 +1,32 @@
+# configs/phase96_rearm.yaml
+# Phase 96.1 – Safe Re-Arm Controller config
+
+legacy_flag_path: data/runtime/trading_disabled.flag
+
+checks:
+  # Require that kill-switch is currently active before we "re-arm".
+  require_kill_switch_active: true
+
+  # Minimal equity & buying power thresholds to consider account "OK".
+  min_equity: 1000.0
+  min_buying_power: 0.0
+
+  # If global_error_count is higher than this, re-arm will be blocked
+  # unless --force is used.
+  max_global_error_count: 1000
+
+  # If true, refuses to re-arm while there are any open positions.
+  require_flat_book: false
+
+supervisor:
+  # If true, automatically launch Phase 95 supervisor after re-arming.
+  auto_launch: false
+  module: runner.phase95_supervisor
+  config_path: configs/phase95_supervisor.yaml
+
+  # If true, supervisor process logs to current console. If false, it is detached.
+  log_to_console: true
+
+alerts:
+  enabled: true
+  tag: "Phase96.1Rearm"

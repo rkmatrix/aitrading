@@ -1,0 +1,57 @@
+# configs/phase55_alpaca_feedback.yaml
+# Phase 55 — Alpaca-backed Live Reward Feedback + RL Replay Writer
+mode: DRY_RUN        # DRY_RUN | LIVE
+log_level: INFO
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+loop:
+  interval_sec: 2.0
+  bursts: 1
+  max_events_per_burst: 20
+
+source:
+  # For CI + local dry runs we keep dummy by default.
+  # When ready for real fills, change to: type: alpaca
+  type: dummy          # dummy | alpaca
+  dummy:
+    seed: 55
+    event_rate_per_symbol: 2
+    price:
+      start: 100.0
+      drift_perc: 0.0005
+      vol_perc: 0.01
+  alpaca:
+    paper: true
+    max_orders_per_poll: 50
+    # api_key: ""      # optional; otherwise uses env
+    # secret_key: ""   # optional; otherwise uses env
+
+reward:
+  weights:
+    pnl_realized: 1.0
+    pnl_unrealized: 0.2
+    drawdown_penalty: -0.6
+    slippage_penalty: -0.2
+    risk_penalty: -0.3
+  params:
+    max_drawdown_window: 200
+    risk_target_vol: 0.02
+    slippage_bps: 2.0
+
+sinks:
+  csv_path: data/rewards/phase55_events.csv
+  summary_path: data/reports/phase55_reward_summary.json
+  notify:
+    enabled: true
+    only_on_anomaly: true
+    anomaly_threshold: 2.5
+
+replay:
+  enabled: true
+  max_size: 100000
+  dump_path: data/replay/phase55_replay.jsonl
+  flush_every: 50
+
+telegram:
+  enabled: true
+  kind: guardian

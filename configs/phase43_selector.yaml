@@ -1,0 +1,68 @@
+# configs/phase43_selector.yaml
+mode: PAPER            # PAPER | LIVE | DRY_RUN
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Where policy bundles live (each bundle has manifest.json and optionally model.pt/weights)
+policy_bundles_dir: "models/policies"
+
+# Registry CSV to pre-seed pool (policy_id, path, enabled, notes)
+registry_csv: "data/registry/policies.csv"
+
+# Selector settings
+selector:
+  strategy: "ucb1"        # ucb1 | epsilon_greedy | softmax
+  epsilon: 0.10           # used by epsilon_greedy
+  temperature: 0.7        # used by softmax
+  min_trials: 2           # force at least N trials before exploitation
+  reward_metric: "sharpe" # sharpe | winrate | pnl | custom
+  decay: 0.995            # performance decay per round (optional)
+
+# Evaluation settings (how we score a policy quickly)
+evaluator:
+  window_bars: 200        # bars to simulate/backtest for quick score
+  seed: 43
+  allow_metadata_only: true   # allow bundles without weights (metadata-only)
+  fail_score: -1e9
+
+# Evolution settings
+evolution:
+  enabled: true
+  max_pool_size: 12
+  elite_top_k: 3
+  sample_new_k: 2
+  mutate_prob: 0.6
+  crossover_prob: 0.3
+  spec:
+    # Hyperparameters in manifest.json→"hyperparams" that we can mutate
+    lr:
+      type: "float"
+      low: 1.0e-5
+      high: 5.0e-3
+      log: true
+      sigma: 0.35
+    gamma:
+      type: "float"
+      low: 0.85
+      high: 0.999
+      log: false
+      sigma: 0.1
+    entropy_coef:
+      type: "float"
+      low: 0.0
+      high: 0.05
+      log: false
+      sigma: 0.2
+    clip_range:
+      type: "float"
+      low: 0.05
+      high: 0.4
+      log: false
+      sigma: 0.2
+
+# Outputs
+outputs:
+  selection_history_csv: "data/reports/phase43_selection_history.csv"
+  selector_state_json:   "data/runtime/phase43_selector_state.json"
+  evolution_log_csv:     "data/runtime/phase43_evolution_log.csv"
+
+logging_level: "INFO"

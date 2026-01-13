@@ -1,0 +1,43 @@
+# Phase 27  Reward Memory & Experience Replay Buffer
+mode: PAPER            # LIVE | PAPER | DRY_RUN
+symbols: ["AAPL","MSFT","TSLA"]
+
+storage:
+  root: "data/experience"
+  shard_size: 50000            # rotate parquet after N transitions
+  write_every: 200             # flush buffer to disk every N pushes
+
+buffer:
+  capacity: 250000             # in-memory capacity
+  batch_size: 2048
+  prioritized: true            # enable Prioritized Experience Replay (PER)
+  per_alpha: 0.6               # [0,1] how much prioritization
+  per_beta: 0.4                # importance-sampling correction
+  per_eps: 1.0e-6
+
+reward:
+  # Compose your reward from multiple terms
+  weights:
+    pnl: 1.0                   # normalized PnL term
+    risk: -0.2                 # drawdown / variance penalty
+    cost: -0.05                # transaction cost / slippage penalty
+    position: -0.01            # inventory or exposure penalty
+  pnl_norm_window: 2000        # rolling window for pnl z-score
+  dd_window: 1000              # rolling window for drawdown calc
+  clip: [-5.0, 5.0]
+
+learner:
+  algo: "ppo"                  # "ppo" (on-policy) or "awac" (off-policy imitation) or "dqn-lite"
+  epochs: 3
+  grad_steps: 2000
+  lr: 3.0e-4
+  seed: 42
+  device: "cpu"
+  tb_logdir: "runs/phase27"
+
+market:
+  # features used to reconstruct states when learning from fills
+  bars:
+    provider: "alpaca"         # or "yfinance_offline"
+    timeframe: "1Min"
+    lookback_bars: 60

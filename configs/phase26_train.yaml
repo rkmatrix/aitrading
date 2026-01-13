@@ -1,0 +1,43 @@
+phase: 26
+seed: 42
+device: auto
+
+data:
+  symbols: ["AAPL", "MSFT", "TSLA"]
+  bar_source: "parquet"     # parquet | csv | feeder
+  path: "data/market/phase26/"
+  episode_minutes: 45
+  tick_seconds: 1
+
+env:
+  max_participation: 0.12     # 12% POV hard cap
+  max_spread_bps: 15
+  notional_per_episode: 100000  # target notional to execute
+  slip_impact_scale: 1.0
+  spread_reward_scale: 0.5
+  nonfill_penalty: 0.2
+  inventory_risk_bps: 3
+  guardian_kill_switch: true
+
+agent:
+  algo: "ppo"
+  policy: "MlpPolicy"
+  gamma: 0.995
+  gae_lambda: 0.95
+  n_steps: 2048
+  batch_size: 256
+  learning_rate: 3.0e-4
+  clip_range: 0.2
+  ent_coef: 0.005
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  total_timesteps: 1_000_000
+  checkpoint_every: 250_000
+
+logging:
+  out_dir: "artifacts/phase26"
+  tensorboard: true
+
+safety:
+  dry_run: true
+  paper_trade: true

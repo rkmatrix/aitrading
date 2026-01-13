@@ -1,0 +1,27 @@
+# Phase 56 — Offline RL Training From Replay Buffer
+
+mode: PAPER
+
+# REQUIRED BY phase56_train_replay.py
+policy_name: EquityRLPolicy
+
+paths:
+  # Replay buffer file (Phase 55 output)
+  replay_file: data/replay/phase55_replay.jsonl
+
+  # Where versioned policies get saved (Phase 56 → 57)
+  policies_root: models/policies/EquityRLPolicy
+
+# Optional training hyperparameters (kept from your original file)
+lr: 0.0003
+batch_size: 64
+gradient_steps: 3000
+
+# Kept from your existing config
+policy_path: models/policies/EquityRLPolicy/model.zip
+replay_path: data/replay/phase55_replay.jsonl
+save_to: models/policies/EquityRLPolicy/model
+
+training:
+  episodes: 15       # number of training passes over replay
+  batch_size: 64     # matches your existing

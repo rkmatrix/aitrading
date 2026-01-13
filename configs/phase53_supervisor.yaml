@@ -1,0 +1,29 @@
+# configs/phase53_supervisor.yaml
+# Phase 53 – Multi-Policy Supervisor & Adaptive Weight Blending
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Policies to supervise (must match adapter.name)
+policies:
+  - "EquityRLPolicy v1.7.3"
+  - "EquityRLPolicy v1.8.0"
+  - "MomentumRL"
+  - "NewsSentimentRL"
+
+# Rolling performance & adaptation
+short_alpha: 0.30      # ~ fast-reacting EWMA
+long_alpha: 0.05       # ~ slow baseline EWMA
+scoring_mode: "advantage"   # short - long
+temperature: 0.80      # <1 → peakier softmax on scores
+adaptation_rate: 0.50  # how fast to move toward the latest normalized weights
+
+# Weight constraints
+min_weight: 0.05
+max_weight: 0.85
+
+# Confidence shaping
+normalize_confidence: true
+confidence_power: 1.0   # >1 emphasizes confident policies
+
+# Operational
+rebalance_interval_s: 5.0
+reward_key: "reward"    # if you pass a dict of realized rewards to supervisor.step()

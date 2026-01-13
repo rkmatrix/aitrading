@@ -1,0 +1,21 @@
+{
+  "name": "execution_base",
+  "version": "1.0.0",
+  "schema": "execution_policy_v1",
+  "kind": "execution",
+  "payload": {
+    "slippage_bps": 12,
+    "delay_ms": 120,
+    "max_retry": 3,
+    "cancel_on_fail": true,
+    "brokers": {
+      "primary": "alpaca",
+      "backup": "backup"
+    },
+    "risk_filters": {
+      "max_order_value_usd": 25000,
+      "max_daily_trades": 50
+    }
+  },
+  "source_id": "local-default"
+}

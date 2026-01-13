@@ -1,0 +1,33 @@
+mode: LIVE
+# where Phase 47 writes its log of rollbacks
+rollback_log: data/reports/rollback_log.csv
+# where Phase 42/47 logs performance / synthetic seed data
+feedback_csv: data/reports/policy_feedback.csv
+# directory holding all policy bundles
+policies_root: models/policies
+
+# training data filters
+data:
+  lookback_days: 14          # collect recent traces after rollback
+  min_rows: 50               # minimum feedback rows to attempt a real tune
+  symbols: ["AAPL","MSFT","TSLA"]  # optional: for future symbol-specific training
+
+# thresholds to accept/publish the new candidate
+acceptance:
+  min_sharpe: 0.90
+  max_drawdown: 0.12
+  min_feedback: 0.70
+
+# versioning behavior
+versioning:
+  bump_strategy: "patch"     # "patch"|"minor"|"date"
+  tag_prefix: "rc"           # new versions like v1.7.4_rc_20251116...
+
+# notifications
+notifications:
+  enabled: true
+  telegram_channel: "guardian"
+
+# logging
+logging:
+  train_report: data/reports/recovery_train_log.csv

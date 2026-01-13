@@ -1,0 +1,18 @@
+# Phase 36.2 – Monthly PnL Roll-Up & Cumulative Chart
+timezone: America/Chicago
+base_ccy: USD
+
+inputs:
+  daily_csv: data/reports/phase36_pnl_daily.csv
+
+outputs:
+  monthly_csv: data/reports/phase36_monthly_summary.csv
+  chart_png:  data/plots/monthly_pnl_cumulative.png
+
+rollup:
+  lookback_months: 12
+
+alerts:
+  enable_telegram: true
+  min_abs_monthly_pnl_to_alert: 25.0
+  tag: phase36_monthly

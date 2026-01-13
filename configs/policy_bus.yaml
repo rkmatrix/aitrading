@@ -1,0 +1,15 @@
+# Phase 41.3 – Distributed Policy Bus
+backend: asyncio         # asyncio | redis
+
+# Common settings
+channel: "policy_updates"  # logical channel/topic name
+
+# Redis settings (only used if backend=redis)
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+
+# Registry the consumers should read after update events
+registry_path: "data/runtime/policy_registry.json"

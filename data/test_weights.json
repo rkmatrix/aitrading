@@ -1,0 +1,45 @@
+{
+  "AAPL": {
+    "updates": 600,
+    "weights": {
+      "ppo": 0.7682334222898027,
+      "momentum": 0.13742206417174252,
+      "meanrev": 0.09434451353845472
+    },
+    "strategies": {
+      "ppo": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": 0.001896689067188479,
+          "var": 3.1669939765323817e-07,
+          "initialized": true
+        },
+        "hits": 600.0,
+        "total": 600.0
+      },
+      "momentum": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -3.340041521527266e-05,
+          "var": 2.2885526853796938e-07,
+          "initialized": true
+        },
+        "hits": 300.0,
+        "total": 600.0
+      },
+      "meanrev": {
+        "ema_ret": {
+          "alpha": 0.1,
+          "beta": 0.1,
+          "mean": -0.0006948323468083383,
+          "var": 7.156273548193521e-07,
+          "initialized": true
+        },
+        "hits": 117.0,
+        "total": 600.0
+      }
+    }
+  }
+}

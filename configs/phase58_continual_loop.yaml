@@ -1,0 +1,22 @@
+# Phase 58 — Continual Policy Improvement Loop
+
+mode: PAPER
+
+policy_name: EquityRLPolicy
+
+paths:
+  # Where policies live (same root as Phase56/57)
+  policies_root: models/policies/EquityRLPolicy
+
+  # Replay buffer (same file Phase56 uses)
+  replay_file: data/replay/phase55_replay.jsonl
+
+  # State file to remember last retrain
+  state_file: data/runtime/phase58_state.json
+
+retrain:
+  # Minimum new replay rows since last retrain required to trigger a new one
+  min_new_replay_rows: 20
+
+  # Optional: max policy age in days (0 disables this condition)
+  max_policy_age_days: 7

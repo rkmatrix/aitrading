@@ -1,0 +1,9 @@
+# configs/phase113_audit.yaml
+# Phase 113 – Order & PnL Audit Trail
+
+order_audit:
+  enabled: true
+  log_dir: "data/logs/orders"
+  source: "phase26_ultra"
+  pretty_print: false       # if true, also log summary lines to normal logger
+  include_context: true

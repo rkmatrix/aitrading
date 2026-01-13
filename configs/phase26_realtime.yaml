@@ -1,0 +1,81 @@
+# configs/phase26_realtime.yaml
+# Phase 26 – Realtime Execution (with Phases 61–66 integrated)
+
+mode: DEMO   # LIVE | PAPER | DEMO
+
+symbols:
+  - AAPL
+  - MSFT
+  - TSLA
+
+# MultiAgentBrain settings
+conflict_threshold: 0.6
+risk_hold_override: false
+
+agents:
+  rl:
+    weight: 1.2
+  signal:
+    weight: 2.0
+  risk:
+    weight: 1.5
+  allocator:
+    weight: 1.0
+  router:
+    weight: 0.8
+    brokers: ["alpaca", "backup"]
+
+# ExecutionPipeline gating rules
+min_confidence: 0.4
+min_qty: 1.0
+
+tick_delay: 1.0
+
+broker:
+  use_router: false   # if false → DummyBrokerExecutor (no real orders)
+
+logs:
+  jsonl_path: "data/reports/phase63_live.jsonl"
+  csv_path: "data/reports/phase63_live.csv"
+
+evolution:
+  enabled: true
+
+  # Evolver mode:
+  #   heuristic → HeuristicWeightEvolver (A)
+  #   rl        → RLWeightEvolver (B)
+  #   genetic   → GeneticWeightEvolver (C)
+  mode: heuristic
+
+  # Reward modes:
+  #   directional → action vs price_drift
+  #   pnl         → uses pnl from order_meta / ctx.extra.realized_pnl
+  #   confidence  → pure confidence-based
+  #   hybrid      → 0.7 * directional + 0.3 * pnl
+  reward_mode: directional
+
+  update_interval: 20     # decisions between weight updates
+  min_samples: 10         # minimum reward updates before evolving
+
+  performance_path: "data/runtime/phase65_agent_performance.json"
+  genetic_state_path: "data/runtime/phase65_population.json"
+  reward_scale_pnl: 100.0
+
+safety:
+  min_confidence: 0.55
+  max_conflict: 0.60
+  max_position_qty: 500
+  max_trade_qty: 300
+  max_volatility: 0.35
+  max_drawdown: 0.25
+  flip_flop_sec: 45
+  max_trades_per_min: 6
+
+execution:
+  mode: "fusion"        # NEW: "fusion" or "rl_only" or "signals_only"
+  symbols: ["AAPL", "MSFT", "TSLA"]
+
+  fusion:
+    enabled: true
+    cfg_path: "configs/phase92_multi_agent_fusion.yaml"
+    log_fusion_diag: true

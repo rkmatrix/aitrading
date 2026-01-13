@@ -1,0 +1,18 @@
+# Phase 37 – Broker Equity Reconciliation & Account Drift Tracking
+timezone: America/Chicago
+base_ccy: USD
+
+inputs:
+  daily_pnl_csv: data/reports/phase36_pnl_daily.csv
+  broker_equity_glob: data/broker/equity_*.csv
+
+outputs:
+  drift_csv: data/reports/phase37_equity_drift.csv
+
+thresholds:
+  max_abs_drift_pct: 0.5     # % difference allowed between internal & broker equity
+  min_equity_usd: 1000       # trigger alert if broker equity falls below this
+
+alerts:
+  enable_telegram: true
+  tag: phase37_equity

@@ -1,0 +1,66 @@
+# Phase 18 master configuration
+
+risk:
+  enabled: true
+  rules:
+    max_position:
+      enabled: true
+      max_pct_equity_per_symbol: 0.15   # 15% of equity
+      max_shares_per_symbol: null
+    max_exposure:
+      enabled: true
+      long_gross_limit_pct: 150         # gross as % of equity
+      short_gross_limit_pct: 50
+      net_limit_pct: 120
+    drawdown_circuit:
+      enabled: true
+      lookback_days: 5
+      intraday_dd_limit_pct: 5.0
+      daily_dd_limit_pct: 7.0
+      cooloff_minutes: 90
+    volatility_throttle:
+      enabled: true
+      vix_threshold: 30.0
+      reduce_size_factor: 0.5           # 50% size when triggered
+    earnings_halt:
+      enabled: true
+      pre_earnings_halt_days: 2
+      post_earnings_halt_days: 1
+    news_halt:
+      enabled: false
+      severity_threshold: "high"        # placeholder
+  allocation_sanitizer:
+    round_lots: 1
+    min_notional: 10.0
+    max_notional_pct_equity: 15.0
+  order_sanitizer:
+    allow_market: false
+    price_slippage_limit_bps: 50        # 0.50%
+    time_in_force: "day"
+
+compliance:
+  audit_log:
+    enabled: true
+    path: "data/audit/phase18_audit.jsonl"
+    hash_chain: true
+
+monitoring:
+  metrics:
+    enabled: true
+    path_csv: "data/metrics/phase18_metrics.csv"
+    path_json: "data/metrics/phase18_metrics.jsonl"
+    emit_portfolio_snapshot: true
+  anomaly:
+    enabled: false
+    zscore_threshold: 3.0
+
+feature_flags:
+  path: "configs/flags.yaml"
+  auto_reload_seconds: 15
+
+notifiers:
+  telegram:
+    enabled: true
+    bot_token_env: "TELEGRAM_BOT_TOKEN"
+    chat_id_env: "TELEGRAM_CHAT_ID"
+    parse_mode: "MarkdownV2"  # safe escaping handled in utils.telegram_safe

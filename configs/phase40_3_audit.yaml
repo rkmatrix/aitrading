@@ -1,0 +1,8 @@
+title: "AITradeBot — Phase 40.3 Audit & History"
+
+audit_path: "data/reports/phase40_audit_log.json"
+max_records: 5000
+
+dashboard:
+  base_config: "configs/phase40_2_control_center.yaml"
+  refresh_seconds: 30

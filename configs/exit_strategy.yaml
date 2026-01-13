@@ -1,0 +1,28 @@
+# Exit Strategy Configuration
+# Professional exit management settings
+
+trailing_stops:
+  enabled: true
+  method: "atr"  # "atr" or "percentage"
+  atr_multiplier: 2.5
+  percentage: 0.02  # 2%
+  breakeven_enabled: true
+  breakeven_after_pct: 0.01  # Move to breakeven after 1% profit
+
+profit_targets:
+  enabled: true
+  targets: [0.25, 0.50, 0.75]  # Partial exits at 25%, 50%, 75% profit
+  risk_reward_ratio: 2.0  # Target profit = risk * ratio
+
+time_based_exits:
+  enabled: true
+  max_hold_hours: 24.0
+  exit_on_signal_reversal: true
+  exit_on_regime_change: true
+  exit_on_volatility_spike: true
+
+# ATR calculation
+atr_period: 14
+
+# State persistence
+state_file: "data/runtime/exit_manager_state.json"

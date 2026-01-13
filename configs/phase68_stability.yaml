@@ -1,0 +1,30 @@
+# Phase 68 – Autonomous Execution Stability Engine (AESE)
+
+mode: "PAPER"  # or LIVE / DEMO
+
+target:
+  # How to launch the supervised trading loop
+  type: "module"            # "module" | "script" | "cmd"
+  command: "runner.phase26_realtime_live"
+  args:
+    - "--config"
+    - "configs/phase26_realtime.yaml"
+
+# Files used by the watchdog
+heartbeat_path: "data/runtime/phase68_heartbeat.json"
+health_path: "data/runtime/phase68_health.json"
+crash_report_path: "data/reports/phase68_crash_report.json"
+
+thresholds:
+  heartbeat_timeout_sec: 5      # <5s = OK
+  freeze_restart_sec: 20        # >20s = restart realtime subsystem (we restart process)
+  full_restart_sec: 60          # >60s = full system restart
+  fatal_freeze_sec: 300         # >300s = fatal, escalate
+  alpaca_max_failures: 3        # consecutive Alpaca REST failures before restart
+
+restart_policy:
+  max_restart_attempts: 5       # max restarts within window
+  restart_window_sec: 600       # rolling window in seconds (10 min)
+
+enable_telegram: true
+telegram_tag: "phase68_stability"

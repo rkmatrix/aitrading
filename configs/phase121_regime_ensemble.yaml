@@ -1,0 +1,29 @@
+# configs/phase121_regime_ensemble.yaml
+# Phase 121 – Regime-aware RL + Dumb Strategy Ensemble
+
+ensemble:
+  enabled: true
+  use_regime: true
+  clamp_small_scores: 0.15  # |score| < this → STAY_FLAT
+
+  # Default weights per regime
+  risk_on:
+    rl_weight: 0.7
+    trend_weight: 0.2
+    revert_weight: 0.1
+    stay_flat_if_disagree: false
+    stay_flat_threshold: 0.3
+
+  neutral:
+    rl_weight: 0.5
+    trend_weight: 0.25
+    revert_weight: 0.25
+    stay_flat_if_disagree: false
+    stay_flat_threshold: 0.3
+
+  risk_off:
+    rl_weight: 0.2
+    trend_weight: 0.3
+    revert_weight: 0.5
+    stay_flat_if_disagree: true
+    stay_flat_threshold: 0.3

@@ -1,0 +1,45 @@
+# configs/phase112_reconciler.yaml
+# Phase 112 – Trade / Position Reconciliation (advanced)
+
+reconciliation:
+  # Master switch + frequency (used by Phase 26 periodic reconciliation)
+  enabled: true
+  interval_ticks: 30        # run inside Phase 26 every 30 ticks
+  telegram_alerts: true     # Phase 26 will send Telegram summaries when true
+
+  # Where the bot's "internal view" of positions lives.
+  # Written by Phase 26 via _save_bot_state.
+  internal_state_path: "data/runtime/phase26_bot_state.json"
+
+  # Where to write reconciliation reports
+  report_dir: "data/reports"
+
+  # Tolerances for treating two positions as "matching"
+  tolerance_shares: 0.01         # <= this share diff is ignored
+  tolerance_notional_pct: 0.5    # <= this % of equity diff is ignored
+
+  # Heal mode:
+  #   "none"          : just report
+  #   "align_internal": overwrite internal JSON to match broker positions
+  #   "close_strays"  : close broker positions not in internal state / big mismatches
+  heal_mode: "none"
+
+  # Use SmartOrderRouter for heal closes (if heal_mode = "close_strays")
+  use_router_for_heal: true
+
+  # ========= Advanced drift safety logic =========
+
+  # If total absolute position drift exceeds this % of equity,
+  # Phase 112 writes trading_disabled.flag (kill-switch).
+  drift_killswitch_threshold_pct: 3.0
+
+  # If mismatches + ONLY_BROKER symbols are >= this,
+  # also trigger kill-switch.
+  drift_symbol_threshold: 2
+
+  # Mild drift auto-heal:
+  # If mismatch per symbol is below this % of equity,
+  # and auto_align_internal is true, Phase 112 will auto-align
+  # internal state to broker to clear small discrepancies.
+  auto_heal_notional_pct: 1.0
+  auto_align_internal: true

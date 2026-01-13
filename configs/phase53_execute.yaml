@@ -1,0 +1,34 @@
+# Phase 53 Guarded Execute – drives trades from blended targets
+mode: "PAPER"            # PAPER | LIVE | DRY_RUN
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# portfolio sizing (used if no broker equity fetch available)
+account_equity: 100000.0         # USD fallback equity
+target_notional_per_symbol: 25000.0  # per-symbol sizing anchor if desired
+
+# guardian limits
+max_abs_target: 0.9              # cap blended target magnitude per symbol
+max_trade_qty: 200               # hard cap per single order (shares)
+min_trade_notional: 200.0        # skip tiny trades (< $)
+cooldown_s: 20                   # min seconds between orders of same symbol
+kill_switch: false               # set true to block all orders
+
+# order defaults
+order_type: "MARKET"             # MARKET | LIMIT
+time_in_force: "day"
+tag: "phase53_blend"
+
+# routing preferences (if SmartOrderRouter available)
+router:
+  style: "adaptive"              # advisory only for your router
+  primary: "alpaca_paper"
+  config_path: "configs/brokers/alpaca_paper.yaml"
+
+# files
+reports_csv: "data/reports/phase53_orders.csv"
+
+# where to read policy supervisor config
+supervisor_config: "configs/phase53_supervisor.yaml"
+
+market_hours:
+  extended: true      # enable pre/after-market trading

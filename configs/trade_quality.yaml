@@ -1,0 +1,26 @@
+# Trade Quality Filter Configuration
+# Professional trade filtering to only trade when edge is present
+
+# Signal validation
+min_expected_value_pct: 0.5  # Minimum expected value in %
+min_win_rate: 0.45  # Minimum win rate (45%)
+min_signal_strength: 0.05  # Minimum signal strength
+
+# Market condition filters
+min_volume: 1000000  # Minimum daily volume
+max_bid_ask_spread_bps: 10.0  # Max spread in basis points
+avoid_low_liquidity_hours: true
+low_liquidity_start_hour: 15  # 3 PM ET
+low_liquidity_end_hour: 16  # 4 PM ET
+
+# Volatility filters
+min_volatility: 0.01  # Minimum daily volatility (1%)
+max_volatility: 0.10  # Maximum daily volatility (10%)
+
+# Historical performance filters
+min_symbol_win_rate: 0.40  # Minimum symbol-specific win rate
+min_strategy_win_rate: 0.45  # Minimum strategy-specific win rate
+performance_lookback_days: 30  # Days to look back for performance
+
+# State file
+state_file: "data/meta/trade_quality.json"

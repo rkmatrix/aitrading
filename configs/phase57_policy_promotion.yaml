@@ -1,0 +1,12 @@
+# Phase 57 — Automated Policy Versioning & Promotion
+
+mode: PAPER
+
+policy_name: EquityRLPolicy
+
+paths:
+  policies_root: models/policies/EquityRLPolicy
+
+metric_to_compare: sharpe    # sharpe | winrate | avg_reward | max_dd
+promotion_threshold: 0.03    # +3% improvement on selected metric
+min_episodes: 10             # require at least N replay rows / episodes

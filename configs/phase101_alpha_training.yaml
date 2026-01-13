@@ -1,0 +1,22 @@
+# configs/phase101_alpha_training.yaml
+# Phase 101 – Alpha Model Training
+
+data:
+  # Path to a CSV with columns: timestamp, symbol, open, high, low, close, volume
+  ohlcv_csv: "data/history/phase101_ohlcv.csv"
+
+features:
+  returns_windows: [1, 5, 10]
+  vol_windows: [10, 20]
+  ma_windows: [10, 20, 50]
+  rsi_windows: [14]
+
+model:
+  target_col: "fwd_ret_1"
+  n_estimators: 200
+  max_depth: null
+  random_state: 42
+
+output:
+  features_csv: "data/features/phase101_features.csv"
+  model_path: "models/alpha/phase101_alpha_model.joblib"

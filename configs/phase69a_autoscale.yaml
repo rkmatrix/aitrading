@@ -1,0 +1,19 @@
+# Phase 69A – Adaptive Auto-Scaling Executor
+
+mode: "PAPER"
+
+autoscale:
+  base_interval_sec: 3.0
+  min_interval_sec: 0.5
+  max_interval_sec: 10.0
+
+  # Volatility-based scaling
+  low_vol_threshold: 0.5     # below → slow down
+  high_vol_threshold: 1.5    # above → speed up
+
+  # Safety
+  max_consecutive_fast_ticks: 50
+  cooldown_sec: 5.0
+
+logging:
+  log_interval_sec: 30.0

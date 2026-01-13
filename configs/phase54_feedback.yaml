@@ -1,0 +1,26 @@
+# Phase 54 – Live PnL & Reward Feedback Loop
+mode: "PAPER"              # PAPER | LIVE | DRY_RUN
+symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Market data
+poll_interval_s: 15
+price_source: "alpaca_or_fake"     # "alpaca_or_fake" | "fake"
+alpaca:
+  base_url: "https://paper-api.alpaca.markets"  # overridden if APCA_API_BASE_URL env set
+  key_env: "APCA_API_KEY_ID"
+  secret_env: "APCA_API_SECRET_KEY"
+
+# Reward attribution
+horizon: "one_step"         # currently one-step returns between polls
+attribution: "dot"          # dot: reward = sum_i (targets_i * return_i)
+confidence_power: 1.0       # raise policy confidence to this power before reward
+scale: 1.0                  # multiply reward by this factor
+clip_reward: 1.0            # clip to [-clip, +clip]; use <=0 to disable
+
+# Files
+rewards_csv: "data/reports/policy_rewards.csv"
+supervisor_config: "configs/phase53_supervisor.yaml"
+
+# Notifications
+notify_on_rebalance: true
+rebalance_delta: 0.05       # weight-change threshold for alerting

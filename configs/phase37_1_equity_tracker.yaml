@@ -1,0 +1,15 @@
+# Phase 37.1 – Persistent Equity Tracker + Drift Chart
+timezone: America/Chicago
+base_ccy: USD
+
+inputs:
+  drift_csv: data/reports/phase37_equity_drift.csv
+
+outputs:
+  history_csv: data/reports/phase37_equity_history.csv
+  chart_png: data/plots/equity_drift_chart.png
+
+tracker:
+  lookback_days: 60
+  alert_drift_threshold: 0.5  # percent
+  tag: phase37_equity_tracker

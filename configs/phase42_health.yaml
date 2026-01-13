@@ -1,0 +1,6 @@
+# Phase 42.2 – Policy Health Monitor
+manifest_path: data/runtime/current_policy/manifest.json
+check_interval_sec: 60          # how often to re-check
+max_age_days: 3                 # alert if policy older than this
+alert_on_stale: true
+alert_on_corruption: true

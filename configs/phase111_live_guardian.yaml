@@ -1,0 +1,32 @@
+live_guardian:
+  enabled: true
+
+  # ============================================================
+  # LOSS & EXPOSURE LIMITS (Phase 111 Core Rules)
+  # ============================================================
+  max_intraday_loss_pct: 3.0        # Max % loss allowed before stopping
+  max_position_exposure_pct: 25.0   # Max % per-symbol exposure allowed
+
+  # ============================================================
+  # NEW FEATURES (Extended Guardian v2)
+  # ============================================================
+
+  # 1) Automatically clear kill flag after N minutes
+  #    Set to 0 to disable auto-reset
+  auto_reset_minutes: 60
+
+  # 2) Startup grace period in seconds
+  #    Guardian bypasses all calculations during this time
+  startup_grace_seconds: 120
+
+  # 3) Print kill flag contents on detection
+  show_summary_on_kill_flag: true
+
+  # 4) Telegram alert when kill flag is cleared automatically
+  telegram_restore_notify: true
+
+  # 5) Kill-switch persistent flag path
+  flag_path: "data/runtime/trading_disabled.flag"
+
+  # Internal guardian metrics saved here
+  state_path: "data/runtime/phase111_guardian_state.json"

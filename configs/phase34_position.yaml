@@ -1,0 +1,26 @@
+phase: 34
+name: "Volatility-Adaptive Position Sizing"
+
+env:
+  id: "TradingEnv-v0"      # your custom env
+  seed: 42
+
+sizing:
+  symbols: ["AAPL","MSFT","TSLA"]
+  # SizeConfig
+  risk_budget_daily: 0.01
+  risk_budget_trade: 0.003
+  vol_floor: 0.0001
+  target_horizon_steps: 20
+  kelly_fraction: 0.25
+  max_gross_leverage: 2.0
+  max_position_per_asset: 0.50
+  min_notional: 100.0
+  lot_step: 1.0
+  exposure_ema_alpha: 0.3
+  use_risk_multiplier: true
+  risk_mult_floor: 0.5
+  risk_mult_ceiling: 1.5
+
+logging:
+  reward_debug_every: 25

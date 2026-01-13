@@ -1,0 +1,40 @@
+# configs/phase62_execute.yaml
+# Phase 62 – Multi-Agent Live Execution (initial integration)
+#
+# NOTE:
+#   • mode: DEMO does NOT send real broker orders if SmartOrderRouter fails.
+#   • To stay safe, keep mode=DEMO until you're comfortable with decisions.
+#   • Orders are only sent if a real broker is successfully built and
+#     the ExecutionPipeline criteria are met.
+
+mode: DEMO  # DEMO | PAPER | LIVE
+
+symbols:
+  - AAPL
+  - MSFT
+  - TSLA
+
+# MultiAgentBrain settings
+conflict_threshold: 0.6
+risk_hold_override: true
+
+agents:
+  rl:
+    weight: 1.2
+  signal:
+    weight: 1.0
+  risk:
+    weight: 1.5
+  allocator:
+    weight: 1.0
+  router:
+    weight: 0.8
+    brokers: ["alpaca", "backup"]
+
+# ExecutionPipeline gating rules
+min_confidence: 0.4  # minimum fused_conf needed before sending an order
+min_qty: 1.0         # minimum shares/units required before sending an order
+
+# Broker / router integration
+broker:
+  use_router: true   # If false, uses DummyBrokerExecutor (no real orders)

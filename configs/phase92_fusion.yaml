@@ -1,0 +1,15 @@
+# configs/phase92_fusion.yaml
+# Phase 92 – Multi-Agent Fusion Engine
+
+inputs:
+  alpha_policy_replay: "data/replay/phase90_pnl_replay.jsonl"
+  sentiment_scores_csv: "data/features/sentiment_scores.csv"
+  volatility_features_csv: "data/features/volatility_features.csv"
+
+fusion:
+  alpha_weight: 0.5
+  sentiment_weight: 0.3
+  volatility_weight: 0.2
+
+output:
+  fused_targets_csv: "data/reports/phase92_fused_targets.csv"

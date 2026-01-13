@@ -1,0 +1,27 @@
+# configs/phase81_online_update.yaml
+#
+# Phase 81 — Online Execution-Aware Policy Update
+#
+# This fine-tunes the existing EquityRLPolicyExecAware model on TradingEnv-v0
+# for a small number of extra timesteps. You can run this periodically (e.g. daily)
+# to keep the policy fresh.
+
+env_id: "TradingEnv-v0"
+
+base_model_path: "models/policies/EquityRLPolicyExecAware/model.zip"
+out_model_path: "models/policies/EquityRLPolicyExecAware/model.zip"
+
+total_timesteps: 20000  # you can increase to 100k+ once stable
+
+reward:
+  slippage_weight: -1.0
+  spread_weight: -0.5
+  latency_weight: -0.0005
+  fill_prob_weight: 1.0
+  clamp_penalty: -0.3
+  pred_block_penalty: -2.0
+  risk_block_penalty: -3.0
+
+ppo:
+  learning_rate: 0.0001
+  gamma: 0.99

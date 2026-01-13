@@ -1,0 +1,25 @@
+name: router_equities
+version: "1.1.0"
+schema: routing_policy_v1
+kind: routing
+routes:
+  - symbol: AAPL
+    primary: alpaca
+    backup: backup
+  - symbol: MSFT
+    primary: alpaca
+    backup: backup
+  - symbol: TSLA
+    primary: alpaca
+    backup: backup
+  - symbol: NVDA
+    primary: alpaca
+    backup: backup
+defaults:
+  primary: alpaca
+  backup: backup
+metadata:
+  description: Base routing policy for US equities.
+  created_by: system
+  last_updated: 2025-11-16
+source_id: local-default

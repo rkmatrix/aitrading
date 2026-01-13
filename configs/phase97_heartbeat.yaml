@@ -1,0 +1,26 @@
+# configs/phase97_heartbeat.yaml
+# Phase 97 – Heartbeat & Freeze Monitor config
+
+heartbeat:
+  path: data/runtime/heartbeat_phase26.json
+  check_interval_sec: 10
+
+  # Soft warning if heartbeat age >= warn_stale_sec
+  warn_stale_sec: 15
+
+  # Hard kill if heartbeat age >= max_stale_sec
+  max_stale_sec: 30
+
+  # If > 0, we will warn if last_tick_duration_sec exceeds this
+  max_tick_duration_sec: 10.0
+
+  # If true, non-increasing tick_seq triggers a kill
+  require_monotonic_seq: true
+
+# If true, HeartbeatMonitor can activate kill-switch on freeze
+kill_switch_enabled: true
+
+alerts:
+  enabled: true
+  min_alert_interval_sec: 120
+  tag: "Phase97Heartbeat"

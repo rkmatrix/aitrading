@@ -1,0 +1,77 @@
+# ==========================================================
+# Phase 25  Real-Time Execution Loop Configuration
+# Integrates SmartOrderRouter + optional RL Execution Brain
+# ==========================================================
+
+phase: 25
+mode: PAPER                # LIVE | PAPER | DRY_RUN
+
+execution:
+  symbols: ["AAPL", "MSFT", "TSLA"]
+  interval_sec: 3          # fallback interval if no RL brain
+  default_qty: 10
+  min_slice: 5
+  max_slice: 500
+  min_interval: 1          # seconds
+  max_interval: 10         # seconds
+  limit_offset_bps_max: 10 # maximum +/- bps limit offset
+  use_rl_brain: true       #  Toggle Adaptive Execution Brain
+  rl_model_path: "artifacts/phase26/best.zip"  # trained model path
+  mode: "PAPER"            # redundant but explicit (LIVE/PAPER/DRY_RUN)
+  broker_adapter: "alpaca"
+  order_tag: "phase25_rl"
+
+safety:
+  guardian_enabled: true
+  participation_cap: 0.12     # max allowed participation rate
+  max_drawdown_bps: 50        # max intra-loop drawdown cap
+  kill_on_vol_spike: true
+
+logging:
+  level: INFO
+  log_to_file: true
+  file_path: "logs/phase25_realtime.log"
+
+telegram:
+  enabled: true
+  alert_types:
+    - orders
+    - guardian
+    - rl_decisions
+
+# Optional live data source config
+data:
+  provider: "alpaca"           # or "yfinance" or "ibkr"
+  refresh_interval: 1          # seconds
+  smoothing_window: 5          # for vol estimates
+
+# Guardian/Execution Behavior
+behavior:
+  fallback_on_guardian: true
+  guardian_fallback_tag: "phase25_guardian_fallback"
+  dry_run_guardian: false
+  report_interval_sec: 30
+
+# Adaptive Brain Parameters (Phase26 integration)
+adaptive_brain:
+  feature_keys:
+    - mid_ret
+    - spread_bps
+    - imbalance
+    - vol_1s
+    - vol_5s
+    - depth_imb
+    - rem_time
+    - rem_notional_norm
+    - pov_so_far
+  feature_normalization: true
+  policy_temp: 1.0
+
+# Misc runtime controls
+runtime:
+  heartbeat_sec: 5
+  reconnect_on_error: true
+  max_consecutive_errors: 10
+  summary_report_every: 60     # seconds
+
+# End of file

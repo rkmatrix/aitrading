@@ -1,0 +1,26 @@
+<div class="calendar-widget">
+    <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <button class="btn-icon calendar-nav-btn" id="calendar-prev-month" title="Previous month">‹</button>
+        <h3 id="calendar-month-year" style="font-size: 16px; font-weight: 600; margin: 0;"></h3>
+        <button class="btn-icon calendar-nav-btn" id="calendar-next-month" title="Next month">›</button>
+    </div>
+    
+    <div class="calendar-grid" id="calendar-grid">
+        <!-- Calendar will be rendered here -->
+    </div>
+    
+    <div class="calendar-legend" style="display: flex; gap: 16px; margin-top: 12px; font-size: 11px; color: var(--text-secondary);">
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 12px; height: 12px; border-radius: 2px; background-color: var(--success-color);"></div>
+            <span>Profitable</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 12px; height: 12px; border-radius: 2px; background-color: var(--error-color);"></div>
+            <span>Loss</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 12px; height: 12px; border-radius: 2px; background-color: var(--bg-tertiary); border: 1px solid var(--border-color);"></div>
+            <span>No activity</span>
+        </div>
+    </div>
+</div>

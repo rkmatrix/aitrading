@@ -1,0 +1,22 @@
+title: "AITradeBot — Phase 40.1 Live Watcher"
+
+interval_seconds: 3600       # every hour
+grace_period_seconds: 10     # wait before first loop
+
+# Phase 39 & 40 configs
+phase39_config: "configs/phase39_evaluator.yaml"
+phase40_config: "configs/phase40_auto_adjust.yaml"
+
+# Log & state
+log_path: "data/runtime/phase40_live.log"
+last_state_json: "data/runtime/phase40_last_state.json"
+
+# Telegram notifications
+telegram:
+  enabled: true
+  kind: "guardian"
+
+# When to alert
+alert_on:
+  grade_change: true
+  drawdown_bucket_change: true

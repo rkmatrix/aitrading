@@ -1,0 +1,25 @@
+<div class="logs-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; gap: 8px;">
+            <button class="tab-btn active" data-log-level="all">All</button>
+            <button class="tab-btn" data-log-level="info">Info</button>
+            <button class="tab-btn" data-log-level="warning">Warning</button>
+            <button class="tab-btn" data-log-level="error">Error</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="logs-search" placeholder="Search logs..." class="search-input" style="width: 200px;">
+            <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                <input type="checkbox" id="auto-scroll-logs" checked>
+                Auto-scroll
+            </label>
+            <button class="btn btn-secondary" id="clear-logs-btn">Clear</button>
+        </div>
+    </div>
+    
+    <div class="logs-panel" id="logs-panel">
+        <div class="log-entry info">
+            <span class="log-timestamp">--:--:--</span>
+            <span>Dashboard initialized. Waiting for logs...</span>
+        </div>
+    </div>
+</div>

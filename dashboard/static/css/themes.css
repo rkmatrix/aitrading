@@ -1,0 +1,21 @@
+/**
+ * Theme Styles
+ */
+
+.theme-dark {
+    --bg-primary: #131722;
+    --bg-secondary: #1e222d;
+    --bg-tertiary: #2a2e39;
+    --text-primary: #d1d4dc;
+    --text-secondary: #868993;
+    --border-color: #2a2e39;
+}
+
+.theme-light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-tertiary: #e0e0e0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+}

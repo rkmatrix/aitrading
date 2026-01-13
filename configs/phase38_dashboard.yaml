@@ -1,0 +1,32 @@
+# Phase 38 – Portfolio Metrics Dashboard config
+
+title: "AITradeBot — Portfolio Metrics Dashboard"
+theme:
+  base: "dark"        # "light" or "dark"
+  primaryColor: "#06a77d"
+
+# Paths to CSV reports (relative to repo root)
+paths:
+  pnl: "data/reports/pnl_history.csv"
+  equity: "data/reports/phase37_equity_history.csv"
+  drift: "data/reports/drift_history.csv"   # fallback: equity_drift.csv
+
+# Optional: cache TTL (seconds) for file reloads
+cache_ttl: 10
+
+# Default date window (days back from today) when the app opens
+default_days_back: 30
+
+# Symbols to preselect in the filter (ignored if not present in data)
+default_symbols: ["AAPL", "MSFT", "TSLA"]
+
+# Rolling windows for metrics
+rolling:
+  pnl_days: 7
+  sharpe_days: 30
+  drawdown_window: 252
+
+# Display toggles
+display:
+  show_value_labels: false
+  show_raw_tables: false

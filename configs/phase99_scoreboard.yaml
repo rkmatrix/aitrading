@@ -1,0 +1,16 @@
+# Phase 99 – Shadow Scoreboard Config
+
+ml_decisions_path: data/runtime/cluster/shadow_ml_decisions.jsonl
+alt_decisions_path: data/runtime/cluster/shadow_alt_decisions.jsonl
+primary_equity_path: data/reports/phase37_equity_history.csv
+
+min_samples: 30
+
+sharpe_weight: 0.50
+dd_weight: 0.30
+trend_weight: 0.20
+
+alert_enabled: true
+alert_tag: "Phase99Scoreboard"
+
+promotion_threshold: 0.65

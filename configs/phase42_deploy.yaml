@@ -1,0 +1,4 @@
+# Phase 42 – Policy Deployment Bridge
+registry_path: data/policies/registry.json
+target_dir: data/runtime/current_policy
+telegram_alerts: true

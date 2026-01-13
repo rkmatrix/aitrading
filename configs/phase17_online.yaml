@@ -1,0 +1,57 @@
+seed: 42
+
+# Where your live execution manager writes logs
+live_logs_glob: "data/logs/live_exec/*.csv"
+
+# Where to cache merged/cleaned datasets for traceability
+cache_dir: "data/cache/phase17_online"
+
+# Where to save retrained models & TB logs
+models_dir: "models/phase17_online"
+tensorboard_log: "runs/phase17_online_tb"
+
+# Base model to start from (will be resumed each cycle)
+base_model_path: "models/phase17_exec_ppo.zip"
+
+# Retraining cycle config
+cycle:
+  # number of PPO timesteps per cycle
+  timesteps: 200_000
+  # keep only latest N checkpoints (older pruned)
+  keep_last_n: 5
+  # minimum new rows required to trigger another cycle (prevents empty retrains)
+  min_new_rows: 500
+  # optional sleep between cycles in minutes when --loop is enabled
+  sleep_minutes: 15
+
+# Env/simulator knobs (merged like Phase 17.1)
+env:
+  max_steps_per_episode: 2048
+  randomize_start: true
+  inventory_limit: 500
+  base_cash: 1_000_000
+  spread_floor_bps: 0.2
+  tick_size: 0.01
+  allowed_actions: ["market", "join", "improve", "cancel"]
+
+simulator:
+  fill_lat_ms_mean: 120
+  fill_lat_ms_std: 80
+  cancel_prob: 0.08
+  impact:
+    a_bps: 3.5
+    sigma_bps: 2.0
+  passive_fill_prob_at_spread: 0.35
+  improve_fill_boost: 0.4
+  join_fill_boost: 0.15
+  market_slippage_extra_bps: 1.0
+
+reward:
+  shortfall_weight: 1.0
+  inventory_weight: 0.0005
+  latency_weight: 0.001
+  fill_bonus: 0.05
+
+# (Optional) Telegram alerts on cycle start/finish/errors
+alerts:
+  enabled: true

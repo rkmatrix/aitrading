@@ -1,0 +1,25 @@
+# Allocation  Execution Adapter (Phase 30 extension)
+
+mode: PAPER                   # DRY_RUN | PAPER | LIVE
+base_currency: "USD"
+
+# Inputs from Phase 30
+inputs:
+  targets_path: "data/runtime/targets/phase30_targets.json"
+  prices_path: "data/runtime/market/latest_prices.json"
+  equity_path: "data/runtime/balances/latest.json"
+  positions_path: "data/runtime/positions/latest_positions.json"
+
+# Outputs for Phase 26/28
+outputs:
+  orders_path: "data/runtime/orders/phase30_orders.json"
+
+# Execution sizing
+params:
+  min_trade_value_usd: 100.0       # Skip tiny dust orders
+  max_order_notional_pct: 5.0      # Limit single order to 5% of equity
+  round_lots: true                 # Round to whole shares
+  price_fallback: 1.0              # Default if missing price
+
+logging:
+  level: "INFO"

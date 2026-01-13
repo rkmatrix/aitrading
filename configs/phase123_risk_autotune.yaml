@@ -1,0 +1,28 @@
+# configs/phase123_risk_autotune.yaml
+# Auto-Tuning Safety Envelope (position caps)
+
+enabled: true
+
+# Base per-symbol cap – this is the NOTIONAL cap before scaling.
+# You can override with ENV PHASE26_MAX_POSITION_DOLLAR.
+base_max_position_dollar: 25000.0
+
+risk_scale:
+  min: 0.30    # never shrink more than 70%
+  max: 1.00    # never expand risk beyond base
+
+# Execution Quality → scale contribution
+eqm:
+  low_quality_threshold: 0.55
+  medium_quality_threshold: 0.70
+  low_quality_scale: 0.60
+  medium_quality_scale: 0.80
+  high_quality_scale: 1.00
+
+# Stability Score → scale contribution
+stability:
+  low_stability_threshold: 0.45
+  medium_stability_threshold: 0.65
+  low_stability_scale: 0.50
+  medium_stability_scale: 0.80
+  high_stability_scale: 1.00

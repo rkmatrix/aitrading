@@ -1,0 +1,5 @@
+# Phase 99 – Policy Leaderboard Engine
+models_root: "models/policies"
+perf_root: "data/reports/policy_perf"
+out_path: "data/reports/phase99_leaderboard.json"
+min_history: 20

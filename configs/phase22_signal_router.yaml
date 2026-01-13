@@ -1,0 +1,93 @@
+# Phase 22: Real-Time Signal Fusion & Smart Order Routing
+version: 22
+mode: LIVE              # LIVE | PAPER | DRY
+log_level: INFO
+seed: 42
+
+symbols:
+  - AAPL
+  - MSFT
+  - SPY
+
+account:
+  base_ccy: USD
+  max_position_notional: 25000
+  max_order_notional: 5000
+  max_daily_turnover: 50000
+  max_open_orders: 25
+  allow_short: false
+
+venues:
+  primary: alpaca
+  routing_universe: [alpaca, paper, mock]
+  failover: paper
+
+fees:
+  # optional overrides (per-share or bps). If empty, use internal tables.
+  overrides: {}
+
+latency:
+  warmup_pings: 3
+  ping_timeout_ms: 800
+
+router:
+  # weights for venue scoring (sum flexible). Higher = more influence.
+  score_weights:
+    latency: 0.35
+    fill_quality: 0.30
+    fees: 0.15
+    liquidity: 0.15
+    reliability: 0.05
+  default_tif: DAY        # DAY | IOC | FOK
+  partial_fills_ok: true
+  prefer_passive: true
+  min_venue_score: 0.48
+
+risk:
+  pre_trade:
+    max_spread_bps: 15
+    max_slippage_bps: 20
+    price_staleness_sec: 3
+    circuit_breaker_bps: 300
+    halt_on_violation: true
+  post_trade:
+    pnl_alert_thresholds_bps: [50, 100, 200]  # intraday move alerts
+
+fusion:
+  # Real-time feature fusion & signal rules
+  clock_hz: 2                    # fusion loop frequency in Hz
+  deserialize_from_bus: true     # use FeatureBus for incremental streams
+  features:
+    - name: mom_1m
+      source: "bus"
+      required: true
+    - name: rsi_2m
+      source: "bus"
+      required: true
+    - name: vol_5m
+      source: "bus"
+      required: false
+    - name: micro_liquidity
+      source: "bus"
+      required: false
+  strategy:
+    # Simple sample policy; you can swap this with your own lambda
+    long_if:
+      mom_1m: "> 0.15"
+      rsi_2m: "< 65"
+    flat_if:
+      vol_5m: "> 3.5"
+    short_if:
+      mom_1m: "< -0.15"
+      rsi_2m: "> 35"
+    size:
+      base_qty: 5
+      scale_with_momentum: true
+      max_scale: 3.0
+
+alerts:
+  telegram:
+    enabled: true
+    chat_id_env: TELEGRAM_CHAT_ID
+    token_env: TELEGRAM_BOT_TOKEN
+    dry_run_preview: true
