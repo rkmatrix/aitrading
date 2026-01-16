@@ -1,1 +1,1 @@
-web: python dashboard/run.py
+web: python start_dashboard.py
