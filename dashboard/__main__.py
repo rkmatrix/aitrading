@@ -19,5 +19,6 @@ from dashboard.app import app, socketio
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    # Disable reloader to avoid path issues
-    socketio.run(app, debug=True, host='0.0.0.0', port=port, use_reloader=False)
+    # Production mode: disable debug and reloader
+    debug_mode = os.getenv('FLASK_ENV', 'production').lower() == 'development'
+    socketio.run(app, debug=debug_mode, host='0.0.0.0', port=port, use_reloader=False)
