@@ -2,24 +2,25 @@
 """
 Dashboard startup script for Render deployment
 Works when Root Directory is set to 'dashboard/'
+When Root Directory is 'dashboard/', Render copies files directly without 'dashboard/' prefix
 """
 import sys
 import os
 from pathlib import Path
 
-# Get dashboard directory (where this file is located)
-dashboard_dir = Path(__file__).resolve().parent
-parent_dir = dashboard_dir.parent
+# Get current directory (where this file is located)
+current_dir = Path(__file__).resolve().parent
 
-# Add parent directory to Python path
-if str(parent_dir) not in sys.path:
-    sys.path.insert(0, str(parent_dir))
+# Add current directory to Python path
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
 
-# Change to parent directory (project root)
-os.chdir(parent_dir)
+# Change to current directory
+os.chdir(current_dir)
 
 # Import and run the dashboard app
-from dashboard.app import app, socketio
+# When Root Directory is 'dashboard/', files are copied directly, so import from 'app' not 'dashboard.app'
+from app import app, socketio
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
