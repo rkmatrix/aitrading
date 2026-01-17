@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: aitradepro-api
+    env: python
+    buildCommand: pip install -r dashboard/requirements.txt
+    startCommand: python dashboard/run.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: aitradepro-api
+          property: port
