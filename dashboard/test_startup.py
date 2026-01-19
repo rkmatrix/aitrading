@@ -13,25 +13,25 @@ if str(parent_dir) not in sys.path:
 try:
     print("Testing dashboard imports...")
     from dashboard.config import config
-    print("✓ Config imported")
+    print("OK: Config imported")
     
     from dashboard.models import Trade, Position, Metric, LogEntry, TickerConfig
-    print("✓ Models imported")
+    print("OK: Models imported")
     
     from dashboard.database import db
-    print("✓ Database imported")
+    print("OK: Database imported")
     
     from dashboard.app import app, socketio
-    print("✓ App imported")
+    print("OK: App imported")
     
-    print("\n✅ All imports successful! Dashboard should start without errors.")
+    print("\nALL GOOD: All imports successful! Dashboard should start without errors.")
     print("\nTo start the dashboard, run:")
     print("  python -m dashboard.app")
     print("  or")
     print("  cd dashboard && python app.py")
     
 except Exception as e:
-    print(f"\n❌ Error: {e}")
+    print(f"\nERROR: {e}")
     import traceback
     traceback.print_exc()
     sys.exit(1)

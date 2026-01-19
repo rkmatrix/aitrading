@@ -3,12 +3,10 @@ services:
     name: aitradepro-api
     env: python
     buildCommand: pip install -r dashboard/requirements.txt
-    startCommand: python dashboard/run.py
+    # Use start_dashboard.py which delegates to dashboard/app_render.py
+    # This works regardless of Render Root Directory setting
+    startCommand: python start_dashboard.py
+    healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
         value: production
-      - key: PORT
-        fromService:
-          type: web
-          name: aitradepro-api
-          property: port
