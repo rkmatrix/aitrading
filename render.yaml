@@ -3,9 +3,9 @@ services:
     name: aitradepro-api
     env: python
     buildCommand: pip install -r dashboard/requirements.txt
-    # Use start_dashboard.py which delegates to dashboard/app_render.py
-    # This works regardless of Render Root Directory setting
-    startCommand: python start_dashboard.py
+    # Use dashboard/app_render.py directly - works when Root Directory is empty
+    # If Root Directory is set to dashboard/, use: python app_render.py
+    startCommand: python dashboard/app_render.py
     healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
