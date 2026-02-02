@@ -77,7 +77,7 @@ import numpy as np
 import pandas as pd
 import yaml
 import warnings
-from datetime import datetime, time as dtime
+from datetime import datetime, time as dtime, timedelta
 from zoneinfo import ZoneInfo
 
 # --------------------------------------------------------------------
@@ -91,6 +91,9 @@ from ai.allocation.multi_symbol_allocator import (
 )
 from ai.reward.pnl_reward_engine import PnLRewardEngine
 from ai.execution.exit_manager import ExitManager, ExitConfig
+from ai.signal.trade_quality_filter import TradeQualityFilter
+from ai.risk.correlation_manager import CorrelationManager
+from ai.allocation.adaptive_sizer import AdaptiveSizer
 
 
 # ----------------------------
@@ -1045,10 +1048,49 @@ class RealTimeExecutionLoop:
         # Cache last known good equity (protect against API hiccups)
         equity_val = acct.get("equity", 0.0) if isinstance(acct, dict) else getattr(acct, "equity", 0.0)
         self._last_good_equity = float(equity_val or 0.0)
+        
+        # Account validation and diagnostics
+        equity_float = float(equity_val or 0.0)
+        bp_float = float(acct.get("buying_power", 0.0) if isinstance(acct, dict) else getattr(acct, "buying_power", 0.0) or 0.0)
+        
+        if equity_float <= 0.0 and self.mode.upper() != "DEMO":
+            log.warning(
+                "⚠️  ACCOUNT VALIDATION WARNING: Equity is $%.2f (Buying Power: $%.2f)",
+                equity_float, bp_float
+            )
+            log.warning(
+                "⚠️  For PAPER trading, ensure your Alpaca paper trading account is properly set up."
+            )
+            log.warning(
+                "⚠️  Visit https://app.alpaca.markets/paper/dashboard/overview to check your account status."
+            )
+            log.warning(
+                "⚠️  Bot will continue but may not execute trades until account has buying power."
+            )
+        elif equity_float > 0.0:
+            log.info(
+                "✅ Account validated: Equity=$%.2f, Buying Power=$%.2f",
+                equity_float, bp_float
+            )
 
         
         self._equity_invalid_last_log_ts = 0.0
         self._equity_invalid_last_price_log_ts = 0.0
+        
+        # Diagnostic tracking for trade blocking analysis
+        self._diagnostic_stats = {
+            "ticks_total": 0,
+            "ticks_price_failures": 0,
+            "ticks_no_candidates": 0,
+            "ticks_filtered_by_quality": 0,
+            "ticks_below_threshold": 0,
+            "ticks_allocator_rejected": 0,
+            "price_fetch_failures_by_symbol": {},
+            "quality_filter_rejections": {},
+            "threshold_rejections": 0,
+            "last_diagnostic_summary_tick": 0,
+        }
+        
 # DEMO mode flag (used across options A/D)
         self.demo_mode = self.mode.upper() == "DEMO"
 
@@ -1698,23 +1740,41 @@ class RealTimeExecutionLoop:
             - entry_threshold: fused score threshold to consider trading
             - max_equity_risk_pct: per-symbol equity allocation cap
             - symbol_cooldown_sec: effective per-symbol cooldown
+        
+        ENTRY THRESHOLD EXPLANATION:
+        The entry_threshold is DYNAMIC and adjusts based on market conditions:
+        - Base: 0.03 (3% signal strength) - configurable via PHASE26_BASE_ENTRY_THR
+        - Increases with volatility: Higher vol → Higher threshold (more selective)
+        - Increases with drawdown: Higher DD → Higher threshold (more defensive)
+        - Range: 0.02 (2%) to 0.25 (25%) - clamped for safety
+        
+        ADJUSTMENT:
+        - Set PHASE26_BASE_ENTRY_THR=0.02 for more trades (lower threshold)
+        - Set PHASE26_BASE_ENTRY_THR=0.05 for fewer trades (higher threshold)
+        - Lower values = more aggressive, higher values = more conservative
+        - Default 0.03 matches typical signal strengths (3-4%)
         """
         snapshot = self._portfolio_snapshot()
         vol = float(snapshot.get("volatility", 0.0))
         dd = float(snapshot.get("drawdown", 0.0))
 
-        base_thr = float(os.getenv("PHASE26_BASE_ENTRY_THR", "0.08"))
+        # Base thresholds (configurable via environment variables)
+        # PHASE26_BASE_ENTRY_THR: Base entry threshold (default: 0.03 = 3%)
+        # Lowered from 0.08 to 0.03 to match actual signal strengths (3-4%)
+        base_thr = float(os.getenv("PHASE26_BASE_ENTRY_THR", "0.03"))
         base_max_risk = float(os.getenv("PHASE26_MAX_EQUITY_RISK_PCT", "0.03"))
         base_cooldown = float(os.getenv("PHASE26_SYMBOL_COOLDOWN_SEC", "60.0"))
 
         if vol < 0.01:
             vol = 0.01
 
+        # Dynamic adjustment: threshold increases with volatility and drawdown
         entry_threshold = base_thr * (1.0 + vol * 0.5 + dd * 2.0)
         max_equity_risk_pct = base_max_risk / (1.0 + vol + dd * 2.0)
         symbol_cooldown_sec = base_cooldown * (1.0 + vol * 1.5 + dd * 3.0)
 
-        entry_threshold = float(np.clip(entry_threshold, 0.02, 0.25))
+        # Safety clamping: ensure thresholds stay within reasonable bounds
+        entry_threshold = float(np.clip(entry_threshold, 0.02, 0.25))  # 2% to 25%
         max_equity_risk_pct = float(np.clip(max_equity_risk_pct, 0.01, 0.05))
         symbol_cooldown_sec = float(np.clip(symbol_cooldown_sec, 10.0, 300.0))
 
@@ -1799,13 +1859,63 @@ class RealTimeExecutionLoop:
         return (t >= dtime(9, 30)) and (t <= dtime(16, 0))
 
     def _idle(self, *, reason: str, msg: str, sleep_sec: float = 60.0, log_every_sec: float = 300.0) -> None:
-        """Idle with throttled logs (prevents overnight log spam)."""
-        now = time.time()
+        """Idle with throttled logs (prevents overnight log spam).
+        
+        On weekends or Friday evening, sleeps longer (up to 1 hour chunks) until next market open.
+        """
+        now_ts = time.time()
         last = float(getattr(self, f"_last_idle_{reason}", 0.0) or 0.0)
-        if (now - last) >= float(log_every_sec):
-            log.info(msg)
-            setattr(self, f"_last_idle_{reason}", now)
-        time.sleep(float(sleep_sec))
+        
+        now_et = self._ny_now()
+        is_weekend = now_et.weekday() >= 5  # Saturday = 5, Sunday = 6
+        is_friday_evening = now_et.weekday() == 4 and now_et.time() >= dtime(16, 0)  # Friday after 4 PM ET
+        
+        # If weekend or Friday evening, calculate time until next market open (Monday 9:30 AM ET)
+        if is_weekend or is_friday_evening:
+            if is_weekend:
+                # Calculate time until Monday 9:30 AM ET
+                # Saturday (weekday=5) -> Monday is 2 days away
+                # Sunday (weekday=6) -> Monday is 1 day away
+                days_until_monday = (7 - now_et.weekday()) % 7
+                if days_until_monday == 0:  # Shouldn't happen on weekend, but safety check
+                    days_until_monday = 1
+            else:
+                # Friday evening -> Monday is 3 days away
+                days_until_monday = 3
+            
+            # Calculate next Monday 9:30 AM ET
+            next_monday_date = now_et + timedelta(days=days_until_monday)
+            next_open = next_monday_date.replace(hour=9, minute=30, second=0, microsecond=0)
+            seconds_until_open = (next_open - now_et).total_seconds()
+            
+            # Sleep in chunks (max 1 hour) but log less frequently during extended closed periods
+            chunk_sleep = min(3600.0, max(60.0, seconds_until_open))  # Max 1 hour, min 60 seconds
+            extended_log_interval = 3600.0  # Log every hour during extended closed periods
+            
+            # Log with extended closed period message
+            if (now_ts - last) >= float(extended_log_interval):
+                hours_until_open = seconds_until_open / 3600.0
+                if is_weekend:
+                    log.info(
+                        "%s (Weekend - Market opens Monday 9:30 AM ET in %.1f hours)",
+                        msg,
+                        hours_until_open
+                    )
+                else:
+                    log.info(
+                        "%s (Friday evening - Market opens Monday 9:30 AM ET in %.1f hours)",
+                        msg,
+                        hours_until_open
+                    )
+                setattr(self, f"_last_idle_{reason}", now_ts)
+            
+            time.sleep(float(chunk_sleep))
+        else:
+            # Normal weekday behavior (before Friday 4 PM or Monday-Thursday after hours)
+            if (now_ts - last) >= float(log_every_sec):
+                log.info(msg)
+                setattr(self, f"_last_idle_{reason}", now_ts)
+            time.sleep(float(sleep_sec))
 
     def _operator_safe_equity(self) -> float:
         """Return equity, but never fabricate in PAPER/LIVE."""
@@ -1833,6 +1943,78 @@ class RealTimeExecutionLoop:
                 equity,
             )
             self._equity_invalid_last_log_ts = now
+    
+    def _log_diagnostic_summary(self, tick_idx: int, entry_threshold: float) -> None:
+        """Log periodic diagnostic summary showing why trades aren't happening."""
+        stats = self._diagnostic_stats
+        total_ticks = stats["ticks_total"]
+        
+        if total_ticks == 0:
+            return
+        
+        log.info("=" * 80)
+        log.info("📊 DIAGNOSTIC SUMMARY (Tick #%d, Last 100 ticks)", tick_idx)
+        log.info("=" * 80)
+        
+        # Overall statistics
+        log.info("Total ticks processed: %d", total_ticks)
+        log.info("Ticks with price failures: %d (%.1f%%)", 
+                 stats["ticks_price_failures"],
+                 100.0 * stats["ticks_price_failures"] / max(total_ticks, 1))
+        log.info("Ticks with no candidates: %d (%.1f%%)",
+                 stats["ticks_no_candidates"],
+                 100.0 * stats["ticks_no_candidates"] / max(total_ticks, 1))
+        log.info("Ticks filtered by Trade Quality: %d (%.1f%%)",
+                 stats["ticks_filtered_by_quality"],
+                 100.0 * stats["ticks_filtered_by_quality"] / max(total_ticks, 1))
+        log.info("Ticks below entry threshold: %d (%.1f%%)",
+                 stats["ticks_below_threshold"],
+                 100.0 * stats["ticks_below_threshold"] / max(total_ticks, 1))
+        log.info("Ticks rejected by allocator: %d (%.1f%%)",
+                 stats["ticks_allocator_rejected"],
+                 100.0 * stats["ticks_allocator_rejected"] / max(total_ticks, 1))
+        
+        # Price failure breakdown by symbol
+        if stats["price_fetch_failures_by_symbol"]:
+            log.info("")
+            log.info("Price fetch failures by symbol:")
+            for sym, count in sorted(stats["price_fetch_failures_by_symbol"].items(), 
+                                    key=lambda x: x[1], reverse=True):
+                log.info("  %s: %d failures", sym, count)
+        
+        # Quality filter rejection reasons
+        if stats["quality_filter_rejections"]:
+            log.info("")
+            log.info("Trade Quality Filter rejections by reason:")
+            for reason, count in sorted(stats["quality_filter_rejections"].items(),
+                                       key=lambda x: x[1], reverse=True):
+                log.info("  %s: %d rejections", reason, count)
+        
+        # Current thresholds
+        log.info("")
+        log.info("Current filter thresholds:")
+        log.info("  Entry threshold: %.4f", entry_threshold)
+        if hasattr(self, 'trade_quality_filter') and self.trade_quality_filter:
+            cfg = self.trade_quality_filter.config
+            log.info("  Trade Quality - Min signal strength: %.4f", cfg.min_signal_strength)
+            log.info("  Trade Quality - Min win rate: %.2f%%", cfg.min_win_rate * 100)
+        if hasattr(self, 'multi_alloc') and self.multi_alloc:
+            cfg = self.multi_alloc.cfg
+            log.info("  MultiSymbolAllocator - Min abs score: %.4f", cfg.min_abs_score)
+        
+        # Account status
+        try:
+            acct = self.broker.get_account()
+            equity_val = acct.get("equity", 0.0) if isinstance(acct, dict) else getattr(acct, "equity", 0.0)
+            bp_val = acct.get("buying_power", 0.0) if isinstance(acct, dict) else getattr(acct, "buying_power", 0.0)
+            log.info("")
+            log.info("Account status:")
+            log.info("  Equity: $%.2f", float(equity_val or 0.0))
+            log.info("  Buying Power: $%.2f", float(bp_val or 0.0))
+        except Exception:
+            log.warning("  Could not fetch account status")
+        
+        log.info("=" * 80)
 
     # =================================================================
     # Helper: price access (real vs synthetic feed)
@@ -1866,11 +2048,73 @@ class RealTimeExecutionLoop:
                     symbol,
                 )
 
-        try:
-            return float(self.broker.get_last_price(symbol))
-        except Exception:
-            log.exception("Broker price fetch failed for %s; skipping symbol.", symbol)
-            return None
+        # Retry logic with exponential backoff
+        max_retries = 2
+        retry_delay = 0.5  # seconds
+        
+        for attempt in range(max_retries + 1):
+            try:
+                price = self.broker.get_last_price(symbol)
+                if price is None:
+                    if attempt < max_retries:
+                        log.debug(
+                            "⚠️  Price fetch returned None for %s (attempt %d/%d), retrying...",
+                            symbol, attempt + 1, max_retries + 1
+                        )
+                        time.sleep(retry_delay * (2 ** attempt))  # Exponential backoff
+                        continue
+                    log.debug(
+                        "⚠️  Price fetch returned None for %s (market may be closed or no recent trades)",
+                        symbol
+                    )
+                    return None
+                return float(price)
+            except Exception as e:
+                error_msg = str(e)
+                
+                # Don't retry on authentication errors
+                if "401" in error_msg or "403" in error_msg or "unauthorized" in error_msg.lower():
+                    log.error("Authentication error for %s - check API keys: %s", symbol, error_msg)
+                    return None
+                
+                # Retry on transient errors
+                if attempt < max_retries:
+                    log.debug(
+                        "❌ Broker price fetch failed for %s (attempt %d/%d): %s, retrying...",
+                        symbol, attempt + 1, max_retries + 1, error_msg
+                    )
+                    time.sleep(retry_delay * (2 ** attempt))  # Exponential backoff
+                    continue
+                
+                # Final attempt failed - enhanced diagnostics
+                log.warning(
+                    "❌ Broker price fetch failed for %s after %d attempts: %s",
+                    symbol, max_retries + 1, error_msg
+                )
+                # Check if it's an API error vs market closed
+                if "market" in error_msg.lower() or "closed" in error_msg.lower():
+                    log.debug("Market appears closed or unavailable for %s", symbol)
+                elif "rate limit" in error_msg.lower() or "429" in error_msg:
+                    log.warning("Rate limit detected for %s - consider reducing tick frequency", symbol)
+                elif "timeout" in error_msg.lower() or "connection" in error_msg.lower():
+                    log.warning("Network/connection issue for %s - check internet connectivity", symbol)
+                
+                # Try EnhancedMarketDataProvider as fallback if Alpaca fails
+                try:
+                    from ai.market.enhanced_data_provider import EnhancedMarketDataProvider
+                    provider = EnhancedMarketDataProvider()
+                    quote = provider.get_quote(symbol)
+                    if quote and quote.get("price"):
+                        fallback_price = float(quote["price"])
+                        log.info(
+                            "✅ Using EnhancedMarketDataProvider fallback for %s: %.2f",
+                            symbol, fallback_price
+                        )
+                        return fallback_price
+                except Exception as fallback_error:
+                    log.debug("Fallback price provider also failed for %s: %s", symbol, fallback_error)
+                
+                return None
 
     def _on_replay_bars(self, bars: dict) -> None:
         """Drive one tick using externally supplied OHLCV bars.
@@ -2190,7 +2434,11 @@ class RealTimeExecutionLoop:
         # Phase B: hot-swap models/policies safely (no downtime)
         self._maybe_hotswap_models(ctx)
 
-        log.info("⏱ Tick #%s (%.3fs)", ctx.get("tick_idx"), ctx.get("interval_sec"))
+        tick_idx = ctx.get("tick_idx", 0)
+        log.info("⏱ Tick #%s (%.3fs)", tick_idx, ctx.get("interval_sec"))
+        
+        # Update diagnostic stats
+        self._diagnostic_stats["ticks_total"] += 1
 
         # Phase 114 – track per-tick health flags
         tick_error = False
@@ -2275,7 +2523,7 @@ class RealTimeExecutionLoop:
                 if (
                     self.guardian_enabled
                     and guardian_decision is not None
-                    and guardian_decision.should_flatten
+                    and getattr(guardian_decision, 'should_flatten', False)
                 ):
                     try:
                         snapshot_for_guardian = (
@@ -2329,9 +2577,17 @@ class RealTimeExecutionLoop:
             # -------------------------------------------------------------
             candidates = []
             demo_price_map: Dict[str, float] = {}
+            price_failures_this_tick = 0
+            quality_filter_rejections_this_tick = 0
+            
             for sym in self.symbols:
                 price = self._get_last_price(sym)
                 if price is None:
+                    price_failures_this_tick += 1
+                    # Track price failures by symbol
+                    if sym not in self._diagnostic_stats["price_fetch_failures_by_symbol"]:
+                        self._diagnostic_stats["price_fetch_failures_by_symbol"][sym] = 0
+                    self._diagnostic_stats["price_fetch_failures_by_symbol"][sym] += 1
                     continue
                 price_f = float(price)
                 # Phase 123 – feed latest price into Meta-Stability engine
@@ -2377,6 +2633,13 @@ class RealTimeExecutionLoop:
                     )
                     
                     if not allowed:
+                        quality_filter_rejections_this_tick += 1
+                        # Track quality filter rejections by reason
+                        reason_key = reason.split(":")[0] if ":" in reason else reason
+                        if reason_key not in self._diagnostic_stats["quality_filter_rejections"]:
+                            self._diagnostic_stats["quality_filter_rejections"][reason_key] = 0
+                        self._diagnostic_stats["quality_filter_rejections"][reason_key] += 1
+                        
                         log.debug(
                             "Trade quality filter blocked %s: %s (fused=%.4f)",
                             sym, reason, fused_score
@@ -2400,8 +2663,28 @@ class RealTimeExecutionLoop:
             if self.demo_broker is not None and demo_price_map:
                 self.demo_broker.update_mark_prices(demo_price_map)
 
+            # Update diagnostic stats for this tick
+            if price_failures_this_tick == len(self.symbols):
+                self._diagnostic_stats["ticks_price_failures"] += 1
+            if quality_filter_rejections_this_tick > 0:
+                self._diagnostic_stats["ticks_filtered_by_quality"] += 1
+            
             if not candidates:
-                log.warning("No prices available for any symbol; skipping tick.")
+                self._diagnostic_stats["ticks_no_candidates"] += 1
+                if price_failures_this_tick == len(self.symbols):
+                    log.warning(
+                        "No prices available for any symbol; skipping tick. "
+                        "(Price failures: %d/%d symbols)",
+                        price_failures_this_tick, len(self.symbols)
+                    )
+                elif quality_filter_rejections_this_tick > 0:
+                    log.warning(
+                        "All candidates filtered by Trade Quality Filter; skipping tick. "
+                        "(Rejections: %d)",
+                        quality_filter_rejections_this_tick
+                    )
+                else:
+                    log.warning("No candidates after filtering; skipping tick.")
                 return
 
             # -------------------------------------------------------------
@@ -2595,16 +2878,23 @@ class RealTimeExecutionLoop:
             # -------------------------------------------------------------
             if not self.demo_mode:
                 gated = []
+                max_score = 0.0
                 for c in candidates:
                     s = float(c.get("ensemble_score", c.get("fused_score", 0.0)) or 0.0)
-                    if abs(s) >= float(entry_threshold):
+                    abs_s = abs(s)
+                    if abs_s > max_score:
+                        max_score = abs_s
+                    if abs_s >= float(entry_threshold):
                         gated.append(c)
                 candidates = gated
             
                 if not candidates:
+                    self._diagnostic_stats["ticks_below_threshold"] += 1
+                    self._diagnostic_stats["threshold_rejections"] += 1
                     log.info(
-                        "All candidate scores below entry_threshold %.4f; skipping tick.",
-                        float(entry_threshold),
+                        "All candidate scores below entry_threshold %.4f; skipping tick. "
+                        "(Max score: %.4f, Threshold: %.4f)",
+                        float(entry_threshold), max_score, float(entry_threshold)
                     )
                     return
             
@@ -2627,6 +2917,9 @@ class RealTimeExecutionLoop:
                         mode=self.mode,
                         ctx={"tick_idx": ctx.get("tick_idx")},
                     )
+                    # Track allocator rejections
+                    if len(decisions) == 0 and len(candidates) > 0:
+                        self._diagnostic_stats["ticks_allocator_rejected"] += 1
                 else:
                     log.warning("multi_alloc not initialized; falling back to single-symbol selection.")
             except Exception:
@@ -3655,6 +3948,11 @@ class RealTimeExecutionLoop:
 
             except Exception:
                 log.exception("Phase 114: health monitoring update failed.")
+
+            # Periodic diagnostic summary (every 100 ticks)
+            tick_idx = ctx.get("tick_idx", 0)
+            if tick_idx % 100 == 0 and tick_idx > 0:
+                self._log_diagnostic_summary(tick_idx, entry_threshold)
 
             elapsed = time.time() - start_ts
             log.info("✅ Tick completed in %.3fs", elapsed)
