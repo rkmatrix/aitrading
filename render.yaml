@@ -1,4 +1,5 @@
 services:
+  # Dashboard Web Service
   - type: web
     name: aitradepro-api
     env: python
@@ -10,3 +11,15 @@ services:
     envVars:
       - key: FLASK_ENV
         value: production
+
+  # Trading Bot Background Worker
+  - type: worker
+    name: aitradingbot-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python runner/phase26_realtime_live.py
+    envVars:
+      - key: MODE
+        value: PAPER
+      - key: ENV
+        value: PAPER

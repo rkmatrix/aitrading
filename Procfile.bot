@@ -1,0 +1,4 @@
+# Procfile for running the trading bot as a background worker
+# Use this with platforms like Heroku, Render, etc.
+
+worker: python runner/phase26_realtime_live.py
