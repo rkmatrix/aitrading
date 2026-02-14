@@ -81,6 +81,13 @@ psutil>=5.9.0
 
 # Telegram alerts (optional)
 # python-telegram-bot>=20.0
+python-telegram-bot>=20.0
+
+# Market calendars for accurate trading hours
+pandas-market-calendars>=4.0.0
+
+# Timezone support
+pytz>=2023.3
 
 # Additional data sources (optional)
 # alpha-vantage>=2.3.1

@@ -1,25 +1,62 @@
-services:
-  # Dashboard Web Service
-  - type: web
-    name: aitradepro-api
-    env: python
-    buildCommand: pip install -r dashboard/requirements.txt
-    # Use dashboard/app_render.py directly - works when Root Directory is empty
-    # If Root Directory is set to dashboard/, use: python app_render.py
-    startCommand: python dashboard/app_render.py
-    healthCheckPath: /api/health
-    envVars:
-      - key: FLASK_ENV
-        value: production
+# Render.com Configuration for Box Trading Bot
+# This file enables "Infrastructure as Code" - deploy with one click
+# Learn more: https://render.com/docs/infrastructure-as-code
 
-  # Trading Bot Background Worker
+services:
+  # Box Trading Bot - Background Worker
   - type: worker
-    name: aitradingbot-worker
-    env: python
+    name: box-trading-bot
+    runtime: python
+    region: oregon  # US West - change if needed
+    plan: starter  # $7/month for 24/7 operation, or 'free' for testing
+    branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: python runner/phase26_realtime_live.py
+    startCommand: python runner/box_trading_runner.py
+    
+    # Environment variables (set these in Render dashboard)
     envVars:
-      - key: MODE
-        value: PAPER
       - key: ENV
-        value: PAPER
+        value: PAPER_TRADING  # Change to LIVE only after validation!
+      
+      - key: APCA_API_KEY_ID
+        sync: false  # Must be set in dashboard (secret)
+      
+      - key: APCA_API_SECRET_KEY
+        sync: false  # Must be set in dashboard (secret)
+      
+      - key: APCA_API_BASE_URL
+        value: https://paper-api.alpaca.markets
+      
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false  # Must be set in dashboard (secret)
+      
+      - key: TELEGRAM_CHAT_ID
+        sync: false  # Must be set in dashboard (secret)
+      
+      - key: TELEGRAM_ENABLED
+        value: true
+    
+    # Auto-deploy on push to main branch
+    autoDeploy: true
+    
+    # Health check (optional)
+    # Render will restart if bot crashes
+    healthCheckPath: /  # N/A for worker
+    
+# ============================================
+# DEPLOYMENT NOTES
+# ============================================
+# 
+# To deploy:
+# 1. Connect this repo to Render
+# 2. Render will detect render.yaml
+# 3. Set secret environment variables in dashboard
+# 4. Click "Apply" to deploy
+# 
+# Secrets to set manually (never commit these):
+# - APCA_API_KEY_ID
+# - APCA_API_SECRET_KEY
+# - TELEGRAM_BOT_TOKEN
+# - TELEGRAM_CHAT_ID
+# 
+# ============================================

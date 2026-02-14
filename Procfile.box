@@ -1,0 +1,4 @@
+# Procfile for Box Trading Bot worker
+# Use this to deploy the box trading bot as a background worker on Render.com
+
+worker: python runner/box_trading_runner.py
