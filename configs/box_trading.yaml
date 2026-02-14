@@ -1,0 +1,303 @@
+# Box Trading Bot Configuration
+# ==============================
+# Conservative, fail-proof settings for box trading strategy
+# 
+# IMPORTANT: Start with paper trading for 4+ weeks before going LIVE
+# Only adjust parameters after analyzing performance data
+
+box_trading:
+  # Enable/disable the strategy
+  enabled: true
+  
+  # =============================================================================
+  # SYMBOL SELECTION
+  # =============================================================================
+  # Start with 4 highly liquid symbols
+  # Expand only after proven success
+  symbols:
+    - SPY    # S&P 500 ETF - most liquid
+    - QQQ    # NASDAQ ETF - tech exposure
+    - AAPL   # Apple - large cap tech
+    - MSFT   # Microsoft - large cap tech
+  
+  # Symbol correlation groups (for risk management)
+  # Only 1 position allowed per group simultaneously
+  correlation_groups:
+    tech: [AAPL, MSFT, GOOGL, META, NVDA, TSLA]
+    indices: [SPY, QQQ, IWM, DIA]
+    energy: [XLE, XOM, CVX]
+    finance: [XLF, JPM, BAC]
+  
+  # =============================================================================
+  # BOX ZONE THRESHOLDS
+  # =============================================================================
+  # Adaptive mode adjusts zones based on volatility
+  zone_calculation_mode: "adaptive"  # "adaptive" or "fixed"
+  
+  # Fixed thresholds (used if mode = "fixed")
+  fixed_top_zone_threshold: 0.005    # Within 0.5% of prev_day_high
+  fixed_bottom_zone_threshold: 0.005 # Within 0.5% of prev_day_low
+  
+  # Adaptive zones (automatically adjust based on volatility)
+  adaptive_zones:
+    low_volatility:   # ATR < 1%
+      top_threshold: 0.003      # Tighter zones for low vol
+      bottom_threshold: 0.003
+    medium_volatility:  # ATR 1-2%
+      top_threshold: 0.007      # Standard zones
+      bottom_threshold: 0.007
+    high_volatility:  # ATR > 2%
+      top_threshold: 0.012      # Wider zones for high vol
+      bottom_threshold: 0.012
+  
+  # Middle zone to avoid (50/50 probability area)
+  middle_zone_avoid: 0.40      # Avoid middle 40% of range
+  
+  # =============================================================================
+  # ALTERNATIVE BOX (GAP HANDLING)
+  # =============================================================================
+  gap_threshold: 0.02          # 2% gap triggers alternative box evaluation
+  min_bars_for_alt_box: 10     # Wait 10 bars (50min on 5min chart) before using
+  max_alt_boxes_per_day: 1     # Limit alternative box redraws per symbol
+  
+  # =============================================================================
+  # RISK MANAGEMENT (CONSERVATIVE)
+  # =============================================================================
+  # Position sizing
+  base_risk_per_trade: 0.02    # 2% base risk (CONSERVATIVE)
+  max_risk_per_trade: 0.04     # 4% maximum (high confidence only)
+  min_risk_per_trade: 0.01     # 1% minimum (low confidence)
+  
+  # Position limits
+  max_positions: 2             # Start VERY conservative
+  max_positions_if_winning: 3  # Allow 3 if win rate >65% over 10 trades
+  max_positions_if_losing: 1   # Reduce to 1 if win rate <50%
+  
+  # Correlation limits
+  max_correlated_positions: 1  # Only 1 from each correlation group
+  max_total_risk_exposure: 0.08  # Max 8% of capital at risk total
+  max_correlated_risk: 0.05    # Max 5% in correlated positions
+  
+  # Stop loss
+  stop_loss_buffer: 0.003      # 0.3% beyond box boundary for safety
+  
+  # =============================================================================
+  # TAKE PROFIT STRATEGY (TIERED EXITS)
+  # =============================================================================
+  # Exit in tiers to lock in profits progressively
+  tier1_target: 0.50           # Exit 50% at midpoint (LOCK PROFITS)
+  tier2_target: 0.75           # Exit 30% at 75% of range
+  tier3_target: 0.95           # Exit final 20% at opposite side
+  
+  # Time-based exits (prevent holding losers)
+  max_hold_time_minutes: 120   # Force exit after 2 hours if not profitable
+  trailing_stop_activation: 0.5  # Activate trailing stop after 50% profit
+  trailing_stop_distance: 0.003  # 0.3% trailing distance
+  
+  # =============================================================================
+  # MULTI-LAYER REGIME FILTERING (CRITICAL FOR SUCCESS)
+  # =============================================================================
+  
+  # Layer 1: Market-wide regime
+  market_regime:
+    check_spy_regime: true           # Check overall market regime
+    check_vix: true                  # Check fear index
+    max_vix: 25                      # Don't trade if VIX > 25
+    require_market_rangebound: true  # Only trade when market ranging
+  
+  # Layer 2: Symbol-specific regime
+  symbol_regime:
+    require_rangebound: true         # CRITICAL: Only trade ranging symbols
+    exclude_earnings_window_days: 2  # Skip ±2 days around earnings
+    min_boundary_touches: 2          # Need 2+ touches to validate box levels
+  
+  # Layer 3: Volatility filtering
+  volatility_filter:
+    min_atr_percent: 0.005     # 0.5% minimum (avoid dead stocks)
+    max_atr_percent: 0.03      # 3% maximum (too risky for mean reversion)
+    preferred_atr_range: [0.01, 0.02]  # 1-2% is ideal sweet spot
+    min_atr_percentile: 30     # Not too quiet
+    max_atr_percentile: 70     # Not too wild
+  
+  # =============================================================================
+  # TECHNICAL CONFIRMATIONS (MULTIPLE REQUIRED)
+  # =============================================================================
+  confirmations:
+    # RSI (Relative Strength Index)
+    use_rsi: true
+    rsi_period: 14
+    rsi_oversold: 30           # Strict oversold (was 35 in plan, tighter is safer)
+    rsi_overbought: 70         # Strict overbought
+    
+    # Volume (institutional participation)
+    use_volume: true
+    volume_threshold: 1.5      # 50% above average minimum
+    check_institutional_volume: true
+    min_institutional_volume_ratio: 1.3  # Need institutional buyers/sellers
+    
+    # Price action patterns
+    require_rejection_candle: true  # MUST see wick rejection at boundary
+    min_rejection_wick_ratio: 0.4   # Wick must be 40%+ of candle range
+    
+    # Momentum (don't fade strong trends)
+    check_momentum: true
+    momentum_period: 10
+    max_momentum_for_entry: 0.5     # Don't fade if momentum >0.5%
+  
+  # =============================================================================
+  # BREAKOUT DETECTION (SURVIVAL MECHANISM)
+  # =============================================================================
+  # CRITICAL: Detect breakouts early to avoid fighting trends
+  breakout_detection:
+    enabled: true                   # MUST be true
+    volume_spike_threshold: 2.0     # 2x volume spike indicates breakout
+    momentum_threshold: 0.8         # Strong momentum = likely breakout
+    consecutive_breaks: 2           # 2 consecutive bars outside box
+    blacklist_duration_minutes: 120 # Don't trade symbol for 2 hours after breakout
+    
+    # Breakout participation (ADVANCED - disable initially)
+    participate_in_breakouts: false  # Set true after strategy proven in ranging markets
+    breakout_confirmation_bars: 3
+    breakout_volume_requirement: 2.5
+  
+  # =============================================================================
+  # WHIPSAW PROTECTION (PREVENT REVENGE TRADING)
+  # =============================================================================
+  whipsaw_protection:
+    enabled: true                    # MUST be true
+    max_stops_per_symbol_per_hour: 2 # Max 2 stops per symbol per hour
+    cooldown_after_stop_minutes: 60  # Wait 1 hour after stop
+    blacklist_after_stops: 2         # Blacklist after 2 stops
+    blacklist_duration_minutes: 240  # Rest of trading day (4 hours)
+  
+  # =============================================================================
+  # TIME FILTERS (AVOID BAD PERIODS)
+  # =============================================================================
+  avoid_first_minutes: 30      # Wait 30min after open (high volatility)
+  avoid_last_minutes: 15       # Avoid last 15min (unpredictable)
+  stop_new_trades_time: "15:45"  # No new trades after 3:45 PM ET
+  close_all_positions_time: "15:55"  # Close everything by 3:55 PM ET
+  
+  # Session structure awareness
+  check_opening_range: true    # Use 9:30-10:00 range as validation
+  opening_range_validation_threshold: 0.8  # Box should contain 80% of opening range
+  
+  # =============================================================================
+  # CIRCUIT BREAKERS (MULTIPLE LAYERS OF PROTECTION)
+  # =============================================================================
+  circuit_breakers:
+    enabled: true              # MUST be true
+    
+    # Daily limits (hard stops)
+    max_daily_loss_percent: 0.05        # STOP if down 5% for day
+    max_daily_trades: 15                # Max 15 trades per day (prevent overtrading)
+    
+    # Consecutive loss protection
+    max_consecutive_losses: 3           # Pause after 3 losses in a row
+    pause_after_consecutive_losses: true
+    pause_duration_minutes: 120         # Pause for 2 hours
+    
+    # Win rate monitoring
+    min_win_rate_threshold: 0.45        # Alert if below 45%
+    win_rate_lookback_trades: 20        # Over last 20 trades
+    reduce_size_if_below_threshold: true  # Auto-reduce position size
+    
+    # Drawdown protection
+    max_drawdown_from_peak: 0.10        # STOP if down 10% from peak
+    daily_profit_target: 0.03           # Optional: stop after 3% daily gain
+    take_break_after_target: false      # Set true for disciplined profit-taking
+  
+  # =============================================================================
+  # ADAPTIVE LEARNING (PERFORMANCE-BASED ADJUSTMENTS)
+  # =============================================================================
+  adaptive_learning:
+    enabled: true
+    track_performance_by_time: true    # Learn which hours work best
+    track_performance_by_symbol: true  # Learn which symbols work best
+    auto_adjust_confidence: true       # Lower confidence if losing
+    min_sample_size: 20                # Need 20 trades before adjusting
+  
+  # =============================================================================
+  # TELEGRAM ALERTS (COMPREHENSIVE NOTIFICATIONS)
+  # =============================================================================
+  telegram:
+    enabled: true              # HIGHLY recommended
+    alert_on_entry: true       # Alert when trade entered
+    alert_on_exit: true        # Alert when trade exited
+    alert_on_stop_hit: true    # Alert when stopped out
+    alert_on_circuit_breaker: true  # Alert when circuit breaker triggers
+    alert_on_blacklist: true   # Alert when symbol blacklisted
+    
+    # Daily summary
+    daily_summary: true
+    summary_time: "16:05"      # Send summary after market close
+    
+    # Performance alerts
+    performance_alerts:
+      win_rate_below_threshold: true   # Alert if win rate drops
+      consecutive_losses: true         # Alert on consecutive losses
+      daily_loss_limit: true          # Alert on daily loss limit
+  
+  # =============================================================================
+  # PAPER TRADING VALIDATION (REQUIRED BEFORE LIVE)
+  # =============================================================================
+  # These settings are for reference - actual validation done manually
+  paper_trading_requirements:
+    min_trades: 50             # Minimum 50 trades
+    min_win_rate: 0.55         # Minimum 55% win rate
+    min_profit_factor: 1.4     # Minimum 1.4 profit factor
+    max_drawdown_percent: 0.08 # Maximum 8% drawdown
+    min_duration_days: 28      # Minimum 4 weeks (28 days)
+  
+  # =============================================================================
+  # PHASE ROLLOUT SETTINGS
+  # =============================================================================
+  # Track which phase we're in
+  current_phase: "paper_testing"  # paper_testing, live_phase1, live_phase2, production
+  
+  phase_settings:
+    paper_testing:
+      duration_weeks: 4
+      max_position_size_dollars: 999999  # No limit in paper
+      
+    live_phase1:
+      duration_weeks: 2
+      max_position_size_dollars: 100   # Start TINY
+      max_positions: 1
+      
+    live_phase2:
+      duration_weeks: 4
+      max_position_size_dollars: 500   # Still conservative
+      max_positions: 2
+      
+    production:
+      max_position_size_dollars: 5000  # Full size (adjust based on account)
+      max_positions: 2  # Can increase to 3 if performing well
+
+# =============================================================================
+# NOTES FOR OPERATOR
+# =============================================================================
+# 
+# BEFORE GOING LIVE:
+# 1. Run in PAPER mode for minimum 4 weeks
+# 2. Achieve 55%+ win rate over 50+ trades
+# 3. Verify all telegram alerts working
+# 4. Test all circuit breakers
+# 5. Document all losing trades and find patterns
+# 6. Start LIVE with phase1 settings ($100 max position)
+# 7. Only increase size after proven profitability
+# 
+# MONITORING:
+# - Check telegram alerts daily
+# - Review trade log weekly
+# - Analyze performance by symbol/hour monthly
+# - Adjust blacklisted symbols/hours as needed
+# 
+# REALISTIC EXPECTATIONS:
+# - Win rate: 55-65% (NOT 70-80%)
+# - Daily profit: $50-200 (NOT $1,000)
+# - Some days will lose money (that's normal)
+# - Strategy works best in ranging markets
+# - Will underperform during strong trends
+# 
+# =============================================================================

@@ -83,7 +83,7 @@ class AlpacaBroker:
             raise EnvironmentError("Missing ALPACA_API_KEY / ALPACA_API_SECRET or APCA_API_KEY_ID / APCA_API_SECRET_KEY")
 
         try:
-              # type: ignore
+            from alpaca_trade_api.rest import REST  # type: ignore
         except Exception as e:
             raise ImportError("alpaca_trade_api not installed. Run: pip install alpaca-trade-api") from e
 
