@@ -735,6 +735,45 @@ class BoxTradingRunner:
         
         self._send_alert(message, kind="info")
     
+    def _send_validation_reminder(self):
+        """Send reminder to validate after 4 weeks of paper trading"""
+        stats = self.strategy.get_performance_stats()
+        
+        # Calculate runtime
+        runtime_days = (datetime.now() - self.start_time).days
+        
+        message = (
+            f"🎯 VALIDATION REMINDER - 4 WEEKS COMPLETED!\n\n"
+            f"Your Box Trading Bot has been running for {runtime_days} days.\n"
+            f"Time to validate performance before going LIVE!\n\n"
+            f"Current Stats:\n"
+            f"Total Trades: {stats['total_trades']}\n"
+            f"Win Rate: {stats['win_rate']*100:.1f}%\n"
+            f"Total P&L: ${stats['total_pnl']:.2f}\n\n"
+            f"📋 VALIDATION REQUIREMENTS:\n"
+            f"✓ Min 50 trades (you have {stats['total_trades']})\n"
+            f"✓ Win rate >55% (you have {stats['win_rate']*100:.1f}%)\n"
+            f"✓ Profit factor >1.4\n"
+            f"✓ Max drawdown <8%\n\n"
+            f"📝 NEXT STEPS:\n"
+            f"1. Run validation tool:\n"
+            f"   python tools\\validate_box_trading.py\n\n"
+            f"2. Review detailed results\n\n"
+            f"3. If PASSED: Consider Live Phase 1\n"
+            f"   - Change ENV=LIVE in .env\n"
+            f"   - Start with $100 max position\n"
+            f"   - Update current_phase in config\n\n"
+            f"4. If FAILED: Continue paper trading\n"
+            f"   - Analyze losing trades\n"
+            f"   - Adjust configuration\n"
+            f"   - Re-test for another 2-4 weeks\n\n"
+            f"⚠️ DO NOT go live without validation!"
+        )
+        
+        logger.info("Sending 4-week validation reminder")
+        self._send_alert(message, kind="info")
+    
+    
     def _idle(self, reason: str, sleep_seconds: float = 60.0):
         """Idle when market closed or conditions not met"""
         logger.debug(f"Idling: {reason}")
@@ -744,6 +783,10 @@ class BoxTradingRunner:
         """Main execution loop"""
         self.running = True
         self.start_time = datetime.now()
+        
+        # Track 4-week validation reminder
+        self.validation_reminder_sent = False
+        self.four_weeks_date = self.start_time + timedelta(weeks=4)
         
         logger.info("=" * 60)
         logger.info("Box Trading Bot Starting")
@@ -758,7 +801,9 @@ class BoxTradingRunner:
             f"🚀 BOX TRADING BOT STARTED\n\n"
             f"Symbols: {', '.join(self.config.get('symbols', []))}\n"
             f"Max Positions: {self.config.get('max_positions', 2)}\n"
-            f"Risk per Trade: {self.config.get('base_risk_per_trade', 0.02)*100:.0f}%",
+            f"Risk per Trade: {self.config.get('base_risk_per_trade', 0.02)*100:.0f}%\n\n"
+            f"📅 Validation reminder set for: {self.four_weeks_date.strftime('%Y-%m-%d')}\n"
+            f"(After 4 weeks of paper trading)",
             kind="success"
         )
         
@@ -783,6 +828,11 @@ class BoxTradingRunner:
                     self.daily_loss_triggered = False
                     last_daily_reset = current_time.date()
                     last_summary_sent = False
+                    
+                    # Check if 4 weeks have passed (validation reminder)
+                    if not self.validation_reminder_sent and current_time >= self.four_weeks_date:
+                        self._send_validation_reminder()
+                        self.validation_reminder_sent = True
                 
                 # Check market hours
                 if not self.market_clock.is_regular_hours():
