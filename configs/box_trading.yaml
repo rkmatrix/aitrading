@@ -12,13 +12,16 @@ box_trading:
   # =============================================================================
   # SYMBOL SELECTION
   # =============================================================================
-  # Start with 4 highly liquid symbols
-  # Expand only after proven success
+  # Highly liquid symbols for box trading
   symbols:
     - SPY    # S&P 500 ETF - most liquid
     - QQQ    # NASDAQ ETF - tech exposure
-    - AAPL   # Apple - large cap tech
+    - NVDA   # NVIDIA - AI/GPU leader
+    - TSLA   # Tesla - high volatility leader
     - MSFT   # Microsoft - large cap tech
+    - TSM    # TSMC - semiconductor leader
+    - JNJ    # Johnson & Johnson - defensive
+    - CRDO   # Credo Technology - smaller cap tech
   
   # Symbol correlation groups (for risk management)
   # Only 1 position allowed per group simultaneously

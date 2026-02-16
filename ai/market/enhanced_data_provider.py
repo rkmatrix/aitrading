@@ -166,13 +166,22 @@ class EnhancedMarketDataProvider:
         self, 
         symbol: str, 
         period: str = "1mo", 
-        interval: str = "1d"
+        interval: str = "1d",
+        start: Optional[str] = None,
+        end: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get historical OHLCV data.
         Returns list of dicts with: time, open, high, low, close, volume
+        
+        Args:
+            symbol: Stock symbol
+            period: Time period (e.g., "1d", "5d", "1mo") - used if start/end not provided
+            interval: Data interval (e.g., "1d", "5m")
+            start: Start date (YYYY-MM-DD) - optional
+            end: End date (YYYY-MM-DD) - optional
         """
-        cache_key = f"history_{symbol}_{period}_{interval}"
+        cache_key = f"history_{symbol}_{period}_{interval}_{start}_{end}"
         cached = self._get_cached(cache_key)
         if cached is not None:
             return cached
@@ -182,7 +191,12 @@ class EnhancedMarketDataProvider:
             try:
                 self._rate_limit()
                 ticker = yf.Ticker(symbol)
-                data = ticker.history(period=period, interval=interval)
+                
+                # Use start/end if provided, otherwise use period
+                if start and end:
+                    data = ticker.history(start=start, end=end, interval=interval)
+                else:
+                    data = ticker.history(period=period, interval=interval)
                 
                 if not data.empty:
                     bars = []
@@ -198,7 +212,10 @@ class EnhancedMarketDataProvider:
                     self._set_cache(cache_key, bars)
                     return bars
             except Exception as e:
-                logger.debug(f"yfinance historical data failed for {symbol}: {e}")
+                logger.warning(f"⚠️ Historical data fetch failed for {symbol}: {e}")
+                # Don't log full traceback for common errors
+                if "delisted" not in str(e).lower():
+                    logger.debug(f"yfinance error details: {e}")
         
         # Try Alpaca as fallback
         if self.alpaca_client:

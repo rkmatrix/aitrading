@@ -1,0 +1,1112 @@
+0:00
+Here's the deal. Today, I'm going to
+0:01
+show you a trading strategy that I would
+0:03
+use right now in this market. If I
+0:05
+wanted to start making $1,000 every
+0:08
+single day, even if I was starting out
+0:10
+with zero experience or I had nothing
+0:12
+but frustration to show for my efforts,
+0:15
+this right here would be the strategy I
+0:17
+would go to right now. Now, for a lot of
+0:19
+you, you're probably thinking, "Man, a
+0:21
+strategy like that with that type of
+0:23
+performance, it's got to be complicated.
+0:26
+I'm going to have to spend years trying
+0:28
+to master this thing." Guess what? You
+0:30
+don't have to do any of this because not
+0:32
+only has this strategy helped me become
+0:34
+a 7figure trader, I've had the benefit
+0:37
+of teaching this to so many people from
+0:39
+around the world. Many people who
+0:41
+started with zero experience, many
+0:42
+people who had blown through accounts
+0:44
+and had nothing but frustration to show
+0:46
+for their efforts. I've seen these
+0:48
+people flip the script and become
+0:50
+successful traders using this strategy.
+0:53
+Now, the strategy I want to talk to you
+0:54
+guys about today is called the box
+0:56
+theory. And I truly believe this is the
+0:59
+most simplistic yet effective trading
+1:01
+strategy you're ever going to see. In
+1:02
+fact, since I started posting on this
+1:04
+channel about the box theory over a year
+1:07
+and a half ago, it has become one of the
+1:10
+most widely viewed trading strategies on
+1:12
+the internet. And don't take my word for
+1:15
+it. Just read the comments. Nothing but
+1:18
+simple, stupid, and effective. So today,
+1:21
+what I'm going to do is show you
+1:22
+everything that I've learned about this
+1:23
+box theory over a two decade trading
+1:25
+career. And I'm going to share with you
+1:27
+today many things that I have not shared
+1:29
+in the past videos. And as always,
+1:31
+towards the end of the video, I'm going
+1:33
+to show you a series of live trades
+1:35
+using nothing but this box, putting
+1:37
+those final pieces of the puzzle
+1:39
+together for you. That way, when this
+1:40
+video is over, you can honestly look at
+1:42
+yourself and say, "Man, this thing is
+1:45
+stupid simple and effective." So, let's
+1:48
+go ahead and get started today.
+How to draw the box
+1:51
+So, here's where we need to start out
+1:52
+with the box today. First and foremost,
+1:54
+we need to make sure that the box is
+1:56
+drawn correctly. Otherwise, all the
+1:58
+data, all the analysis that you get is
+2:00
+going to be slightly off. And nobody
+2:02
+wants to be slightly off. Now, the basic
+2:04
+premise that goes behind the box is a
+2:06
+very simple one. Where we want to start
+2:08
+is by connecting the previous day's high
+2:11
+price point with the previous day's low
+2:14
+price point. And let me show you a
+2:16
+couple of ways to do that. Starting with
+2:17
+the most simplistic, take whatever chart
+2:20
+you are trading. So, for today's
+2:21
+example, I'll be using the stock Apple,
+2:23
+APL. But I don't care what's up here.
+2:26
+Could be anything. But what does matter
+2:28
+is take that asset you're trading, move
+2:30
+it over to a daily chart. Once you've
+2:33
+done that, all you need to do from there
+2:35
+is grab yourself some sort of drawing
+2:36
+tool like Trading View has a box tool
+2:39
+already. Go to the very highest price
+2:41
+point. Highest price point meaning the
+2:43
+highest point you can see with your
+2:44
+eyes, wick included, and connect that
+2:47
+with the lowest price point. Just like
+2:49
+that. And that creates the essence of
+2:51
+your box. Now once you have done that,
+2:54
+you can grab some sort of line or other
+2:56
+drawing tool and put a line right in the
+2:59
+center of that box. Now it doesn't have
+3:01
+to be perfect. Just you know eyeball it.
+3:02
+Whatever is close just like that.
+3:04
+Doesn't even have to be a clean looking
+3:05
+box. Just so you get that box drawn.
+3:07
+Previous days high, previous days low
+3:09
+line in the middle. Now after this you
+3:12
+can switch to a smaller time frame that
+3:14
+you like. So, for example, today I'll be
+3:16
+using my favorite time frame, which is a
+3:19
+five minute, but it doesn't matter what
+3:21
+you're on. That's the beauty of the box.
+3:22
+It'll work on a 1 minute, 5 minute, 1
+3:24
+hour, 30 minutes. It doesn't matter
+3:26
+because the analysis is always going to
+3:28
+be the same. Now, once this box has been
+3:30
+drawn, we can now talk about the
+3:31
+relevance and what this box means. And
+3:34
+the box has three main components to it.
+3:36
+The top part, the bottom part, and the
+3:39
+center part. And let's go over what each
+3:40
+one means. Starting with the very top
+3:42
+part of this box. The very top part of
+3:45
+the box represents the strongest
+3:48
+sellside force. Hence the reason why the
+3:51
+asset had rejected from that price and
+3:54
+sold off aggressively. So easy in
+3:56
+layman's terms. The largest, strongest,
+3:59
+most powerful well-funded seller is
+4:02
+located up here towards the top of the
+4:05
+box. The very bottom of the box
+4:07
+represents the strongest buyside force
+What does the box mean?
+4:10
+or liquidity. Right? Hence the reason
+4:13
+why the stock bounced from there. So the
+4:15
+very top parts of the box represent the
+4:18
+strongest seller. The bottom part of the
+4:20
+box represents the strongest buyer. And
+4:23
+the center of the chart right here
+4:25
+represents nothing at all. It's just
+4:28
+noise, confusion, and indecision. Okay,
+4:32
+that's the essence of the box. So real
+4:34
+quickly, at the top of the box,
+4:36
+strongest seller, bottom of the box,
+4:39
+strongest buyer. center of the box.
+4:42
+Nothing. Okay. Now, with this
+4:44
+information, we can move on to how do
+4:47
+you actually generate a trade from this.
+4:50
+And this is what I love so much about
+4:51
+the box. This is what so many other
+4:53
+people love about the box, and that's
+4:55
+its simplicity. Because there's only
+4:57
+three basic rules to getting this thing
+4:59
+right. And here they are, beginning with
+5:00
+rule number one. If the asset that you
+5:03
+are trading is close to, at, or above
+5:06
+the top of the box, don't buy it. That's
+5:08
+it. just don't buy it at that moment in
+5:11
+time. And the reason for that is what
+5:14
+the top of that box represents the
+5:16
+strongest most wellfunded sellside
+5:20
+dominance. So ask yourself a very simple
+5:23
+question. Why would you want to buy into
+5:26
+a known area that the majority of the
+How do you trade the box?
+5:29
+market can clearly see? A seller that
+5:31
+has announced their intentions. Why
+5:33
+would you want to walk into the lion's
+5:35
+den and go head-to-head against a known
+5:38
+large seller? You're going to get
+5:40
+cheesed every time. Rule number two, if
+5:43
+the asset you're trading is close to at
+5:45
+or below the bottom of the box, don't
+5:49
+sell it. Simple, right? Just don't sell
+5:52
+it for the same reasons you wouldn't buy
+5:54
+at the top. The known largest collective
+5:58
+of buyside wellfunded power is located
+6:01
+down there. Again, ask yourself the
+6:02
+question, why do you want to go into the
+6:04
+lion's den? Why do you want to position
+6:07
+yourself to the sell side, right next to
+6:10
+the largest, most wellfunded and
+6:12
+transparent buyer? You're going to get
+6:15
+cheese down there, too. Rule number
+6:17
+three is the center line. This is what
+6:19
+we call do not didd in the middle. And
+6:22
+it's self-explanatory. Just simply don't
+6:25
+trade there. Just don't do it. And
+6:27
+here's why. Because at the top of this
+6:30
+chart, you know, odds are it's going to
+6:33
+be sold. There's probably an 80%
+6:36
+probability that that strong seller will
+6:39
+return. At the bottom of the chart,
+6:42
+there's probably an 80% probability that
+6:44
+the buyer will in fact return. These are
+6:47
+known data points for the market. In the
+6:49
+center, you don't have that information.
+6:52
+So, if you think of it this way, it's
+6:54
+possible if done right, you could have a
+6:56
+70 to 80% win rate at the top of the
+6:58
+box, a 70 to 80% weight at the bottom of
+7:01
+the box, but 50/50 in the middle. You're
+7:04
+going to get confusing, whipsolled, poor
+7:06
+action, and the risk and reward is not
+7:08
+in your favor. Now, I know a lot of you
+7:10
+that are watching this that have a tiny
+7:11
+bit of trading experience is going, you
+7:13
+know what? I've seen some of these
+7:15
+stocks just shoot right up through the
+7:16
+box. I've seen a bunch of these just go
+7:18
+right down, just blow through the box.
+7:20
+What do I do then? I've seen these
+7:21
+things hang around the middle and just
+7:23
+move all over and it just take off up or
+7:24
+down. You know what? I've seen a monkey
+7:27
+ride a bicycle before. But you know what
+7:29
+I haven't seen? I haven't seen a lot of
+7:31
+monkeys riding a bicycle. The key to
+7:34
+being a successful professional trader
+7:36
+is trading probabilities, not
+7:38
+perfection. And over the course of time,
+7:41
+you've got to go with what is most
+7:43
+likely outcome in every scenario. And if
+7:45
+you're always selling with the big
+7:48
+seller and always buying with the big
+7:50
+buyer and blocking yourself out from the
+7:53
+garbage little breadcrumb scalping,
+7:56
+you're going to go a long way in this
+7:58
+trading business. Nothing will ever be
+8:00
+perfect, but you're going to be a winner
+8:02
+more than you are a loser. Now, this is
+8:04
+all great the way I'm talking it up, but
+8:06
+how about we put this theory to the test
+8:09
+by showing you some real life trades so
+8:10
+you'll learn to trust the power of the
+8:12
+box. So, let's go back to our Apple
+8:15
+chart. You'll see our box is still
+8:16
+drawn. And I want to move to the
+8:19
+previous days open right here and focus
+8:21
+on the very first candle. I'm going to
+8:24
+give you a quiz. This should be a layup
+8:25
+for everyone. But tell me, your hands
+8:28
+are tied behind your back. You're forced
+8:30
+to make a trade. Based off the
+8:32
+information you've collected in this
+8:34
+video, what would you do here? Buy or
+8:36
+sell? Now, hopefully you said sell
+8:40
+because the price of Apple is close to
+8:43
+the top of that box. Now, you might have
+8:46
+been hesitant about saying that because
+8:48
+you see this big green candle and it
+8:50
+looks like that's going to be a
+8:52
+breakout, right? That's the trap. It
+Trade 1 using the box
+8:54
+looks like it's going to be a breakout.
+8:56
+What kind of fool would short a bar that
+8:59
+looks like that or sell it? Why would
+9:00
+you sell something like that? Well, I'll
+9:02
+tell you why you would sell something.
+9:03
+because we know the largest, most
+9:06
+well-funded known seller is located
+9:09
+there. And what happens? Couple of bars
+9:12
+forward and look smoked. You will get
+9:15
+cheesed every time walking into it. And
+9:17
+for some of you, you've had this very
+9:19
+feeling. And I have too. Now, let me
+9:22
+give you quiz number two here. Where is
+9:25
+it now? You see it here. Is it closer to
+9:29
+the bottom of the box or the top of the
+9:30
+box? The bottom. So, what should you be
+9:34
+thinking again? Hands tied behind your
+9:36
+back, forced to make a trade. What
+9:37
+button do you hit? Buy button, sell
+9:40
+button. It's the buy button. And just
+9:43
+like the previous candle, I know that
+9:45
+didn't look like a sell, but it was. And
+9:47
+I know this doesn't look like a buy, but
+9:50
+I bet that it is. Why? Because you're
+9:53
+now bordering the strongest, most
+9:55
+well-funded, and known transparent
+9:58
+buyer. So, if I just kind of fast
+10:00
+forward this a little bit right here,
+10:02
+you're going to see that's exactly what
+10:04
+happens. It tags the very bottom of that
+10:06
+box and finds a way to move back up into
+10:08
+the center of that range. So, again,
+10:10
+just look at it. You traded from the
+10:12
+very top part of the box. The known
+10:15
+seller came back into the market. You
+10:17
+tested the bottom of the box and it came
+10:20
+right back into the known buyer and then
+10:23
+bounces back up. The key to learning
+10:25
+this and starting with the very best and
+10:27
+most powerful part of the box is it's
+10:30
+also a way to keep you out of trouble to
+10:33
+keep you from walking into the market's
+10:35
+traps. Now, a lot of you might say,
+10:37
+"Well, look, you're cherry-picking some
+10:39
+charts. This doesn't work all the time
+10:41
+or it only works in a certain market."
+10:43
+But let me go ahead and show you what
+10:45
+the next day's action looks like. So, I
+10:47
+went ahead and jump forward to save time
+10:49
+into the next day's action. And what
+10:50
+we're going to do is just scoot our box
+10:52
+over here. Right? And for that day, we
+10:55
+had just a little bit lower price print
+10:58
+right there. So that is our new drawn
+11:00
+box. So again, I want to go back and I
+11:02
+want to just cover the basics. Remember,
+11:04
+keep it simple. So here it is. Apple is
+11:07
+opening up. You tell me where it is. Is
+11:11
+it at the top or is it the bottom? It's
+11:13
+at the bottom. Again, I know this looks
+11:17
+bearish. It looks like a sell. It looks
+11:20
+like it's going to collapse. But by now,
+11:23
+you should know the rules. You tell me
+11:26
+again. Hands behind your back. You got
+11:28
+to make a trade right now. Buy button,
+11:30
+sell button. Which is it? Hopefully by
+11:33
+now you said buy. If you didn't, you're
+11:35
+going to have to rewind the video. What
+11:37
+do you think happens here? Right. Goes
+11:40
+right back up through the top of the
+11:42
+box. Now notice though when you get to
+11:44
+the top of the box even though you
+11:47
+extended slightly what happened it was
+11:50
+never able to hold that momentum over
+11:53
+top of the box. So again you can see
+11:55
+span through several days of activity
+11:58
+it's always managed to test the very top
+12:01
+of the box and the bottom of the box so
+12:03
+quickly as prices get towards the top of
+12:06
+the box we are sell side focused bottom
+12:10
+of the box we are buy side focused. in
+12:13
+the middle. We should do our best to
+12:15
+stay out of that because our accuracy
+12:17
+isn't going to be as good. So, now we're
+12:20
+going to move on to the next part of
+12:21
+drawing boxes, which is alternative
+12:23
+boxes. You're going to need to know this
+12:25
+because I'm sure some of you have this
+12:27
+question right now. What do you do in
+12:29
+those cases when price breaks the box?
+12:31
+When you wake up and the price is way,
+12:33
+way above the previous day's high or way
+12:36
+below the previous day's low. So, I'm
+12:37
+going to show you a couple of ways to
+12:38
+draw some alternative boxes. That way,
+12:40
+you can still continue to use the box
+12:42
+theory. Starting with gap up and gap
+12:44
+downs and how we draw these alternative
+12:46
+boxes. Now to save time, I went ahead
+12:48
+and drew the box from the previous day
+12:50
+connecting the previous day's high with
+12:51
+the previous day's low. I moved that box
+12:54
+into the regular session. And as you can
+Drawing alternative boxes
+12:56
+see now, the ES is trading far above the
+12:59
+previous day's high. In this case, we
+13:02
+need to create new levels and new boxes.
+13:05
+And here's how you do that. When in
+13:07
+doubt, the cheat code for the box is at
+13:10
+any given time, you can always connect
+13:12
+the very highest price point you see
+13:15
+with the lowest price point you see.
+13:17
+That would be right here with the lowest
+13:19
+price point you see. And that creates
+13:21
+your alternative box. So whether it's at
+13:24
+the beginning of the day, the middle of
+13:25
+the day, the end of the day, you can
+13:26
+always create, let's call it, cheater
+13:28
+box and use those levels. And here's why
+13:31
+this is so beautiful. Continuing to
+13:33
+hammer home the power of the box theory.
+13:35
+Because regardless of where that box has
+13:38
+been drawn, the three rules still
+13:41
+remain. You are a seller at the top, a
+13:44
+buyer at the bottom, and you're not
+13:45
+trading in the middle. So, having known
+13:48
+this information, going as far as we
+13:50
+have with this video, while this has
+13:52
+gapped up and it's looks stupid,
+13:55
+what do you think is the odds play here?
+13:57
+You got to push a button. Is it a buy
+13:59
+button? Is it a sell button? You tell
+14:01
+me. I hope you said sell because what
+14:04
+happens is down it goes. Right. And
+14:07
+there it is. Right. Moves down towards
+14:09
+the very base of that box. So here's
+14:12
+what I want to show you though that you
+14:13
+probably don't see too many times on
+14:15
+YouTube videos, but this is very very
+14:17
+important. This goes in in in tandem
+14:20
+with understanding and believing your
+14:22
+technical analysis and understanding the
+14:23
+strategy. First and foremost, just like
+14:25
+the rest of them, it didn't look like a
+14:27
+sell when it was supposed to be a sell.
+14:29
+It doesn't look like a buy when it's
+14:31
+supposed to be a buy. But notice on this
+14:33
+one, it tapped the box and this sneaky
+14:35
+little thing tried to come back up
+14:37
+there. Just try to throw that last
+Trading an alternative boxes
+14:39
+little shade of doubt into the trader's
+14:42
+head. Then it eventually cracks. It
+14:44
+eventually cracks and rolls over because
+14:47
+the largest seller was always there. and
+14:51
+that largest seller would always win out
+14:53
+as the all as the buyer would always win
+14:55
+out. Now, what we're going to do at this
+14:57
+point is I'm going to show you a couple
+14:58
+of live trades using nothing but this
+15:01
+box theory in its simplistic form, which
+15:04
+is selling at the top of the box, buying
+15:06
+at the bottom of the box, and staying
+15:08
+out of the middle. These are recent
+15:10
+trades we took in our live community
+15:12
+that we're running every day. And as I
+15:14
+said, 26 years into this game, I'm still
+15:17
+using the box theory every day. So,
+15:19
+let's take a look at a couple of those
+15:20
+trades. Now, as we go through these live
+15:22
+trades that we made in the community,
+15:23
+I'm going to pick these things apart,
+15:25
+but I just want you to simplify your
+15:27
+focus and think about those three rules.
+15:30
+We are sellers at the top of the box. We
+15:33
+are buyers at the bottom of the box. And
+15:34
+we're just not going to doodle in the
+15:36
+middle, right? Let's just keep it
+15:37
+simple. No indicators, no fancy
+15:39
+candlesticks, no jargon. Let's just keep
+15:41
+it stupid simple. So, let's go through
+15:43
+this YM trade. First and foremost,
+15:45
+drawing the box. So what we do is we
+15:47
+connect the previous day's high with the
+15:49
+previous day's low and we extend that
+15:52
+out right towards the market open.
+15:55
+Right? Very simple. Now knowing what you
+15:58
+know up to this point in this video, it
+16:00
+should be a slam dunk easy peasy answer.
+16:03
+What do you do here? What do you do
+16:05
+here? I mean look where it's at. It's at
+16:07
+the bottom of the box. So while it may
+16:09
+look like a market crash, a super dump,
+16:13
+this is a buy. It's a buy because you
+3 live trade examples using only the box
+16:16
+are against a known buyer. And let me
+16:18
+show you what I mean by known. If we go
+16:21
+back and we take a look at this chart,
+16:23
+this buyer was tested once, twice, three
+16:27
+times, four times, and now a fifth time.
+16:31
+So, are you going to tell me that on the
+16:34
+fifth time the buyer is just not going
+16:36
+to show back up? They've been tested.
+16:38
+They've been proven. You're at the
+16:40
+bottom of the box. So, let's go ahead
+16:42
+and open this up and let's see what
+16:44
+happens. Now, as I play this forward,
+16:46
+I'm just going to go one more bar
+16:48
+forward and you'll see we start out with
+16:50
+this very, very nice green. Now, this is
+16:52
+not an entry class or every little
+16:54
+minute detail. But in this case, all I
+16:56
+look for is just one little line of
+16:58
+support and that's enough to go in
+17:00
+because as I said in so many of my other
+17:02
+videos, especially like the unsharp, the
+17:04
+earlier you can get in with the signal,
+17:06
+the less your risk is. So the beautiful
+17:08
+thing about the box is a stop loss goes
+17:10
+right underneath of the low. So the ones
+17:13
+that you do lose on the 15 the 20% that
+17:16
+you lose on the losses are going to be
+17:19
+so much smaller. But here's the beauty.
+17:22
+The risk versus reward is nuts because
+17:25
+the target price is either the center or
+17:28
+the middle of the box. So everything
+17:30
+that you are trading has maximum range.
+17:33
+So if we kind of move this forward,
+17:35
+you'll see what happens is it shoots
+17:37
+right up into that level, right? And
+17:40
+gets rejected. Now take a look at the
+17:43
+rejection. Where did it come from? It
+17:46
+came towards the top of the box. Now
+17:50
+this one was a little shy of the top,
+17:51
+but as you get towards the top of the
+17:53
+box, the philosophy here is you can't
+17:56
+start buying on this candle. You have to
+17:58
+buy on this candle bare minimum that one
+18:01
+at the latest. You cannot start chasing
+18:04
+into those momentum like mo most
+18:05
+strategies do. Now that we have gone
+18:08
+lower, what is most likely going to
+18:11
+happen? Now, I'm going to go ahead and
+18:12
+hit the sell button because that's what
+18:14
+you should be doing here. You should be
+18:15
+looking to sell a position like that off
+18:18
+of the top. Now, in this case, the fill
+18:21
+on this platform is going to be way
+18:22
+later. It should have been right there
+18:25
+at the break of that candle. Stop loss
+18:27
+should be over top of the high of that
+18:29
+candle. target price is moving back
+18:31
+towards the bottom of the box. Okay.
+18:34
+Now, this is a little bit late of a
+18:35
+fill, so it won't be 100% accurate, but
+18:37
+you'll get the message because what
+18:39
+happens is you come back down towards
+18:41
+the bottom of the box. Right now, if we
+18:44
+stop right here where we are, and I just
+18:47
+continue to move this box out, where are
+18:52
+we? We're now slightly below. Now, one
+18:55
+thing to understand about the tops and
+18:57
+the bottoms is we're just talking about
+18:58
+zones. As we get close to, our mind
+19:01
+should shift to selling. As we get close
+19:03
+to, our mind should shift to buying. So,
+19:06
+what we're looking for in this case is a
+19:08
+buy because we are underneath the box.
+19:11
+Now, we do need the candle signal just
+19:13
+to take out the top. So, let's go move
+19:15
+it forward and see what happens. And you
+19:17
+kind of move up. Right there is good
+19:19
+enough. We're going to go ahead and hit
+19:21
+the buy button again. It's almost the
+19:24
+same trade as it was before. targeting
+19:26
+back towards the middle of the range or
+19:28
+even higher, right? And you'll see what
+19:31
+happens is it comes back up again,
+19:33
+right? But notice the pattern over and
+19:36
+over again. Testing the biggest seller,
+19:39
+testing the biggest buyer, returning to
+19:42
+the center of the charts. It constantly
+19:44
+has this momentum over and over and over
+19:47
+again. And you can see using no other
+19:49
+candlesticks, no other theories, no
+19:51
+things that take you 19 million hours to
+19:54
+figure it out, you can actually put some
+19:57
+pretty damn good trades together. You
+20:00
+will be pretty consistent by using this
+20:03
+type of a formula and just those three
+20:06
+rules. So guys, I'm going to end the
+20:07
+video there. It's been my pleasure to
+20:09
+talk about my favorite trading strategy,
+20:10
+which is the box theory. I hope you can
+20:12
+agree with so many others that this is
+20:15
+the stupid simple strategy of a
+20:17
+lifetime. And if you just follow those
+20:19
+three basic principles of being a seller
+20:21
+towards the top, a buyer towards the
+20:23
+bottom, and staying out of the middle,
+20:25
+you should be able to put together some
+20:27
+very nice quality trades. Now, one last
+20:30
+thing I want to remind you of before I
+20:32
+sign off is if you want to see these
+20:34
+types of trades in real time, every day
+20:36
+we trade live in our new squad trading
+20:39
+room. My wife and I just put this thing
+20:41
+together. We've had a great time trading
+20:42
+live. We're going to continue to do this
+20:44
+in front of everybody. So, if you're
+20:45
+looking for a more tailored experience
+Outro
+20:47
+where you get exactly what you see on
+20:49
+this screen, live navigation, live
+20:52
+trading on screen with narration every
+20:55
+day. No Discord hindsight stuff. Just
+20:57
+real life, real world stuff. Click the
+21:00
+link below or follow the link below in
+21:02
+the description box. That'll take you to
+21:03
+our squad. So, on that note, guys, it's
+21:06
+been my pleasure. Take care. Trade well.

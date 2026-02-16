@@ -1,8 +1,20 @@
 # Phase 27 — Micro Allocator (Moderate profile)
+#
+# PURPOSE: Controls position sizing and filters out weak signals before allocation.
+#
+# ADJUSTMENT GUIDE:
+#   - Lower signal_floor = More trades (more sensitive to signals)
+#   - Higher signal_floor = Fewer trades (only strong signals)
+#   - Adjust based on your risk tolerance and market conditions
 
 profile: "moderate"
 
-# Ignore tiny/noisy fused scores
+# signal_floor: Minimum absolute fused score to consider for trading
+#   - Range: 0.01 - 0.20
+#   - Default: 0.05 (5% signal strength)
+#   - MEANING: Signals with abs(fused_score) < signal_floor are ignored
+#   - Lower to 0.02-0.03 for more trades, raise to 0.08-0.10 for stronger signals only
+#   - This is the PRIMARY filter preventing weak signals from becoming trades
 signal_floor: 0.05       # abs(fused) below this → no trade
 
 # If the desired change in weight is small, skip to avoid churn

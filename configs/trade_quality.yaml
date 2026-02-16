@@ -1,17 +1,52 @@
 # Trade Quality Filter Configuration
 # Professional trade filtering to only trade when edge is present
+#
+# PURPOSE: This filter ensures trades only execute when there's a statistical edge,
+#          preventing overtrading and protecting capital from low-quality signals.
+#
+# ADJUSTMENT GUIDE:
+#   - Lower thresholds = More trades (higher risk, more opportunities)
+#   - Higher thresholds = Fewer trades (lower risk, higher quality)
+#   - Start conservative, then adjust based on performance data
 
 # Signal validation
+# min_expected_value_pct: Minimum expected value (%) a trade must have
+#   - Range: 0.0 - 10.0
+#   - Default: 0.5% (conservative)
+#   - Lower to 0.2-0.3 for more aggressive trading
 min_expected_value_pct: 0.5  # Minimum expected value in %
+
+# min_win_rate: Minimum historical win rate (%) required
+#   - Range: 0.0 - 1.0 (0% - 100%)
+#   - Default: 0.45 (45% win rate)
+#   - Lower to 0.35-0.40 for more trades, raise to 0.50+ for higher quality
 min_win_rate: 0.45  # Minimum win rate (45%)
-min_signal_strength: 0.05  # Minimum signal strength
+
+# min_signal_strength: Minimum absolute signal strength to consider
+#   - Range: 0.0 - 1.0
+#   - Default: 0.03 (3% signal strength) - lowered from 0.05 to allow more signals through
+#   - Lower to 0.02 for more sensitive, raise to 0.05-0.10 for stronger signals only
+min_signal_strength: 0.03  # Minimum signal strength (lowered from 0.05 to allow signals 3.32-4.04% through)
 
 # Market condition filters
+# min_volume: Minimum daily trading volume (USD) to ensure liquidity
+#   - Range: 100000 - 10000000
+#   - Default: 1,000,000 (conservative, avoids illiquid stocks)
+#   - Lower to 500k for more opportunities, raise to 5M+ for large-cap only
 min_volume: 1000000  # Minimum daily volume
-max_bid_ask_spread_bps: 10.0  # Max spread in basis points
+
+# max_bid_ask_spread_bps: Maximum bid-ask spread in basis points (1 bp = 0.01%)
+#   - Range: 1.0 - 50.0
+#   - Default: 20.0 bps (0.2% spread) - increased from 10.0 to allow more signals through
+#   - Lower to 5.0 for tighter spreads, raise to 20.0+ for less liquid markets
+max_bid_ask_spread_bps: 20.0  # Max spread in basis points (increased from 10.0)
+
+# avoid_low_liquidity_hours: Skip trading during low-liquidity periods
+#   - Default: true (recommended)
+#   - Set to false if you want to trade during these hours
 avoid_low_liquidity_hours: true
-low_liquidity_start_hour: 15  # 3 PM ET
-low_liquidity_end_hour: 16  # 4 PM ET
+low_liquidity_start_hour: 15  # 3 PM ET (start of low-liquidity window)
+low_liquidity_end_hour: 16  # 4 PM ET (end of low-liquidity window)
 
 # Volatility filters
 min_volatility: 0.01  # Minimum daily volatility (1%)

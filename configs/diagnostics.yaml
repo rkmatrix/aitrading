@@ -1,0 +1,26 @@
+# Diagnostic Configuration
+# Enable detailed logging and diagnostics for troubleshooting trade execution
+
+# Enable detailed diagnostic logging
+enable_detailed_logging: true
+
+# Show filter threshold values in logs
+show_filter_thresholds: true
+
+# Enable detailed filter rejection logging
+log_filter_rejections: true
+
+# Diagnostic summary frequency (every N ticks)
+diagnostic_summary_interval: 100
+
+# Price fetching diagnostics
+log_price_fetch_details: true
+log_price_fetch_errors: true
+
+# Trade blocking diagnostics
+log_trade_blocking_reasons: true
+log_allocator_decisions: false  # Set to true for very verbose allocator logging
+
+# Account status diagnostics
+log_account_status: true
+warn_on_zero_equity: true

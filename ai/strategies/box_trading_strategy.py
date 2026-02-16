@@ -142,10 +142,15 @@ class BoxTradingStrategy:
             return self.box_cache[cache_key]
         
         try:
-            # Get daily historical data
+            # Get daily historical data using date range instead of period
+            # This avoids yfinance errors with period parameter
+            end_date = current_time.date()
+            start_date = end_date - timedelta(days=10)  # Get 10 days to ensure we have data
+            
             hist_data = self.data_provider.get_historical_data(
                 symbol=symbol,
-                period="5d",  # Get 5 days to ensure we have previous day
+                start=str(start_date),
+                end=str(end_date),
                 interval="1d"
             )
             
