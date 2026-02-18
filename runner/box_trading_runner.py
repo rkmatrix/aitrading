@@ -16,7 +16,7 @@ import os
 import time
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from collections import defaultdict
@@ -99,6 +99,9 @@ class Position:
         self.partial_exits: List[Dict[str, Any]] = []
         self.unrealized_pnl = 0.0
         self.realized_pnl = 0.0
+        self.tier1_hit = False
+        self.tier2_hit = False
+        self.tier3_hit = False
         
     def update_pnl(self, current_price: float):
         """Update unrealized P&L"""
@@ -196,6 +199,71 @@ class BoxTradingRunner:
             logger.error("Failed to initialize broker: %s", e)
             self.broker = None
     
+    def _get_account_equity(self) -> float:
+        """Get current account equity with caching"""
+        # Cache equity for 60 seconds to avoid rate limiting
+        if not hasattr(self, '_equity_cache'):
+            self._equity_cache = {'value': 10000.0, 'timestamp': 0}
+        
+        current_time = time.time()
+        if current_time - self._equity_cache['timestamp'] > 60:
+            try:
+                if self.broker and hasattr(self.broker, 'client'):
+                    account = self.broker.client.get_account()
+                    self._equity_cache['value'] = float(account.equity)
+                    self._equity_cache['timestamp'] = current_time
+                    logger.debug(f"Account equity refreshed: ${self._equity_cache['value']:.2f}")
+            except Exception as e:
+                logger.error(f"Failed to get account equity: {e}")
+        
+        return self._equity_cache['value']
+    
+    def _wait_for_fill(self, order_id: str, timeout_seconds: int = 30) -> Optional[Dict]:
+        """Wait for order to fill with timeout"""
+        if not self.broker:
+            return None
+        
+        start_time = time.time()
+        while time.time() - start_time < timeout_seconds:
+            try:
+                status = self.broker.get_order_status(order_id)
+                if status:
+                    order_status = status.get('status', '').lower()
+                    if order_status in ['filled', 'partially_filled']:
+                        return status
+                    elif order_status in ['cancelled', 'expired', 'rejected']:
+                        logger.error(f"Order {order_id} failed with status: {order_status}")
+                        return None
+            except Exception as e:
+                logger.error(f"Error checking order status: {e}")
+            
+            time.sleep(0.5)
+        
+        logger.warning(f"Order {order_id} fill timeout after {timeout_seconds}s")
+        return None
+    
+    def _can_open_position_for_symbol(self, symbol: str) -> bool:
+        """Check if we can open position considering correlation groups"""
+        correlation_groups = self.config.get("correlation_groups", {})
+        max_correlated = self.config.get("max_correlated_positions", 1)
+        
+        # Find which group this symbol belongs to
+        symbol_group = None
+        for group_name, symbols in correlation_groups.items():
+            if symbol in symbols:
+                symbol_group = group_name
+                break
+        
+        # If symbol not in any group, allow it
+        if not symbol_group:
+            return True
+        
+        # Count how many positions we have in this group
+        group_symbols = correlation_groups[symbol_group]
+        positions_in_group = sum(1 for sym in self.positions if sym in group_symbols)
+        
+        return positions_in_group < max_correlated
+    
     def _is_trading_allowed(self, current_time: datetime) -> Tuple[bool, Optional[str]]:
         """
         Check if trading is allowed right now
@@ -219,8 +287,8 @@ class BoxTradingRunner:
             max_daily_loss = circuit_config.get("max_daily_loss_percent", 0.05)
             
             if self.daily_stats["total_pnl"] < 0:
-                # Get account equity (placeholder - would come from broker)
-                account_equity = 10000  # TODO: Get from broker
+                # Get account equity from broker
+                account_equity = self._get_account_equity()
                 loss_percent = abs(self.daily_stats["total_pnl"]) / account_equity
                 
                 if loss_percent >= max_daily_loss:
@@ -257,10 +325,11 @@ class BoxTradingRunner:
         avoid_first = self.config.get("avoid_first_minutes", 30)
         if avoid_first > 0:
             from datetime import time as dtime
-            market_open = dtime(9, 30)
-            avoid_until = dtime(9, 30 + avoid_first // 60, avoid_first % 60)
+            market_open_dt = datetime.combine(now_et.date(), dtime(9, 30))
+            avoid_until_dt = market_open_dt + timedelta(minutes=avoid_first)
+            avoid_until = avoid_until_dt.time()
             
-            if market_open <= current_time_only < avoid_until:
+            if dtime(9, 30) <= current_time_only < avoid_until:
                 return (False, f"Avoiding first {avoid_first} minutes")
         
         # Stop new trades before close
@@ -458,8 +527,13 @@ class BoxTradingRunner:
             return []
     
     def _execute_entry(self, signal: TradeSignal, current_time: datetime):
-        """Execute trade entry"""
+        """Execute trade entry with real broker orders"""
         try:
+            # Check correlation groups
+            if not self._can_open_position_for_symbol(signal.symbol):
+                logger.info(f"Skipping {signal.symbol} - correlation group limit reached")
+                return
+            
             # Calculate position size
             position_size = self._calculate_position_size(signal)
             
@@ -467,18 +541,54 @@ class BoxTradingRunner:
                 logger.warning(f"Position size calculation returned 0 for {signal.symbol}")
                 return
             
-            # In production, execute actual order through broker
-            # For now, simulate entry
+            # Execute real broker order
+            if not self.broker:
+                logger.error("No broker available - cannot execute trade")
+                return
             
-            logger.info(f"Executing {signal.action} for {signal.symbol}: "
+            order = {
+                "symbol": signal.symbol,
+                "side": signal.action.lower(),
+                "qty": position_size,
+                "order_type": "market"
+            }
+            
+            logger.info(f"Submitting {signal.action} order for {signal.symbol}: "
                        f"{position_size} shares @ ${signal.current_price:.2f}")
             
-            # Create position
+            # Submit order to broker
+            resp = self.broker.submit_order(order)
+            
+            # Check for errors
+            if isinstance(resp, dict):
+                if resp.get("error") or resp.get("order_submitted") == False:
+                    logger.error(f"Order failed for {signal.symbol}: {resp.get('error', 'Unknown error')}")
+                    return
+            
+            # Get order ID (broker may return dict or object)
+            order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
+            if not order_id:
+                logger.error(f"No order ID received for {signal.symbol}")
+                return
+            
+            # Wait for fill confirmation
+            fill_status = self._wait_for_fill(order_id, timeout_seconds=30)
+            if not fill_status:
+                logger.error(f"Order {order_id} did not fill for {signal.symbol}")
+                return
+            
+            # Get actual fill price
+            filled_price = float(fill_status.get('filled_avg_price', signal.current_price))
+            filled_qty = int(float(fill_status.get('filled_qty', position_size)))
+            
+            logger.info(f"✅ Order filled: {filled_qty} shares @ ${filled_price:.2f}")
+            
+            # Create position AFTER broker confirms
             position = Position(
                 symbol=signal.symbol,
                 action=signal.action,
-                entry_price=signal.current_price,
-                quantity=position_size,
+                entry_price=filled_price,
+                quantity=filled_qty,
                 stop_loss=signal.stop_loss,
                 take_profit_targets=signal.take_profit_targets,
                 entry_time=current_time,
@@ -496,12 +606,11 @@ class BoxTradingRunner:
             logger.info(f"Position opened: {position}")
             
         except Exception as e:
-            logger.error(f"Error executing entry for {signal.symbol}: {e}")
+            logger.error(f"Error executing entry for {signal.symbol}: {e}", exc_info=True)
     
     def _calculate_position_size(self, signal: TradeSignal) -> int:
         """Calculate position size based on risk"""
-        # Get account equity (placeholder)
-        account_equity = 10000  # TODO: Get from broker
+        account_equity = self._get_account_equity()
         
         # Get risk per trade
         base_risk = self.config.get("base_risk_per_trade", 0.02)
@@ -559,36 +668,58 @@ class BoxTradingRunner:
                 
                 if should_stop:
                     logger.warning(f"Stop loss hit for {symbol} @ ${current_price:.2f}")
-                    self._close_position(symbol, current_price, "Stop loss", current_time)
-                    symbols_to_close.append(symbol)
-                    
-                    # Record stop out for whipsaw protection
-                    self.strategy.record_stop_out(symbol, current_time)
+                    if self._close_position(symbol, current_price, "Stop loss", current_time):
+                        symbols_to_close.append(symbol)
                     continue
                 
-                # Check take profit targets
-                for i, target in enumerate(position.take_profit_targets):
-                    if position.action == "BUY" and current_price >= target:
-                        # Hit target
-                        if i == 0:  # First target - partial exit
-                            self._partial_exit(position, current_price, 0.5, f"Target 1 (${target:.2f})")
-                        elif i == 1:  # Second target
-                            self._partial_exit(position, current_price, 0.3, f"Target 2 (${target:.2f})")
-                        else:  # Final target - close
-                            self._close_position(symbol, current_price, f"Target 3 (${target:.2f})", current_time)
-                            symbols_to_close.append(symbol)
-                            break
+                # Tiered take profit exits (based on ORIGINAL position size)
+                take_profit_targets = position.take_profit_targets
+                if position.action == "BUY" and len(take_profit_targets) >= 3:
+                    tier1_target = take_profit_targets[0]
+                    tier2_target = take_profit_targets[1]
+                    tier3_target = take_profit_targets[2]
                     
-                    elif position.action == "SELL" and current_price <= target:
-                        # Hit target
-                        if i == 0:  # First target - partial exit
-                            self._partial_exit(position, current_price, 0.5, f"Target 1 (${target:.2f})")
-                        elif i == 1:  # Second target
-                            self._partial_exit(position, current_price, 0.3, f"Target 2 (${target:.2f})")
-                        else:  # Final target - close
-                            self._close_position(symbol, current_price, f"Target 3 (${target:.2f})", current_time)
+                    original_qty = position.quantity
+                    tier1_qty = int(original_qty * 0.50)  # 50% of original
+                    tier2_qty = int(original_qty * 0.30)  # 30% of original
+                    
+                    # Tier 1: Exit 50% of original
+                    if not position.tier1_hit and current_price >= tier1_target:
+                        if self._partial_exit(position, current_price, tier1_qty, "Tier 1 target"):
+                            position.tier1_hit = True
+                    
+                    # Tier 2: Exit 30% of original
+                    if not position.tier2_hit and current_price >= tier2_target and position.tier1_hit:
+                        if self._partial_exit(position, current_price, tier2_qty, "Tier 2 target"):
+                            position.tier2_hit = True
+                    
+                    # Tier 3: Exit remaining
+                    if not position.tier3_hit and current_price >= tier3_target and position.tier2_hit:
+                        if self._close_position(symbol, current_price, "Tier 3 target", current_time):
                             symbols_to_close.append(symbol)
-                            break
+                            position.tier3_hit = True
+
+                elif position.action == "SELL" and len(take_profit_targets) >= 3:
+                    tier1_target = take_profit_targets[0]
+                    tier2_target = take_profit_targets[1]
+                    tier3_target = take_profit_targets[2]
+                    
+                    original_qty = position.quantity
+                    tier1_qty = int(original_qty * 0.50)
+                    tier2_qty = int(original_qty * 0.30)
+                    
+                    if not position.tier1_hit and current_price <= tier1_target:
+                        if self._partial_exit(position, current_price, tier1_qty, "Tier 1 target"):
+                            position.tier1_hit = True
+                    
+                    if not position.tier2_hit and current_price <= tier2_target and position.tier1_hit:
+                        if self._partial_exit(position, current_price, tier2_qty, "Tier 2 target"):
+                            position.tier2_hit = True
+                    
+                    if not position.tier3_hit and current_price <= tier3_target and position.tier2_hit:
+                        if self._close_position(symbol, current_price, "Tier 3 target", current_time):
+                            symbols_to_close.append(symbol)
+                            position.tier3_hit = True
                 
                 # Check time-based exit
                 max_hold_time = self.config.get("max_hold_time_minutes", 120)
@@ -596,8 +727,8 @@ class BoxTradingRunner:
                 
                 if time_in_trade >= max_hold_time and position.unrealized_pnl <= 0:
                     logger.info(f"Time-based exit for {symbol} after {time_in_trade:.0f} minutes")
-                    self._close_position(symbol, current_price, "Time limit", current_time)
-                    symbols_to_close.append(symbol)
+                    if self._close_position(symbol, current_price, "Time limit", current_time):
+                        symbols_to_close.append(symbol)
                 
             except Exception as e:
                 logger.error(f"Error managing position for {symbol}: {e}")
@@ -607,88 +738,151 @@ class BoxTradingRunner:
             if symbol in self.positions:
                 del self.positions[symbol]
     
-    def _partial_exit(self, position: Position, exit_price: float, percent: float, reason: str):
-        """Execute partial exit"""
-        exit_quantity = int(position.remaining_quantity * percent)
-        
+    def _partial_exit(self, position: Position, exit_price: float, exit_quantity: int, reason: str) -> bool:
+        """Execute partial exit with real broker order"""
         if exit_quantity <= 0:
-            return
+            return False
         
-        # Calculate P&L for this portion
-        if position.action == "BUY":
-            pnl = (exit_price - position.entry_price) * exit_quantity
-        else:
-            pnl = (position.entry_price - exit_price) * exit_quantity
-        
-        position.realized_pnl += pnl
-        position.remaining_quantity -= exit_quantity
-        
-        position.partial_exits.append({
-            "price": exit_price,
-            "quantity": exit_quantity,
-            "pnl": pnl,
-            "reason": reason,
-            "time": datetime.now()
-        })
-        
-        logger.info(f"Partial exit for {position.symbol}: {exit_quantity} shares @ ${exit_price:.2f}, "
-                   f"PnL=${pnl:.2f} ({reason})")
+        try:
+            # Execute real broker order
+            if self.broker:
+                order = {
+                    "symbol": position.symbol,
+                    "side": "sell" if position.action == "BUY" else "buy",
+                    "qty": exit_quantity,
+                    "order_type": "market"
+                }
+                
+                resp = self.broker.submit_order(order)
+                
+                # Check for errors
+                if isinstance(resp, dict) and (resp.get("error") or resp.get("order_submitted") == False):
+                    logger.error(f"Partial exit order failed for {position.symbol}: {resp.get('error')}")
+                    return False
+                
+                # Wait for fill
+                order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
+                if order_id:
+                    fill_status = self._wait_for_fill(order_id, timeout_seconds=15)
+                    if fill_status:
+                        exit_price = float(fill_status.get('filled_avg_price', exit_price))
+                        exit_quantity = int(float(fill_status.get('filled_qty', exit_quantity)))
+            
+            # Calculate P&L for this portion
+            if position.action == "BUY":
+                pnl = (exit_price - position.entry_price) * exit_quantity
+            else:
+                pnl = (position.entry_price - exit_price) * exit_quantity
+            
+            position.realized_pnl += pnl
+            position.remaining_quantity -= exit_quantity
+            
+            position.partial_exits.append({
+                "price": exit_price,
+                "quantity": exit_quantity,
+                "pnl": pnl,
+                "reason": reason,
+                "time": datetime.now(ZoneInfo("America/New_York"))
+            })
+            
+            logger.info(f"Partial exit for {position.symbol}: {exit_quantity} shares @ ${exit_price:.2f}, "
+                       f"PnL=${pnl:.2f} ({reason})")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error in partial exit for {position.symbol}: {e}")
+            return False
     
-    def _close_position(self, symbol: str, exit_price: float, reason: str, current_time: datetime):
-        """Close position"""
+    def _close_position(self, symbol: str, exit_price: float, reason: str, current_time: datetime) -> bool:
+        """Close position with real broker order"""
         position = self.positions.get(symbol)
         
         if not position:
-            return
+            return False
         
-        # Calculate final P&L
-        if position.action == "BUY":
-            pnl = (exit_price - position.entry_price) * position.remaining_quantity
-        else:
-            pnl = (position.entry_price - exit_price) * position.remaining_quantity
-        
-        position.realized_pnl += pnl
-        
-        # Update stats
-        is_win = position.realized_pnl > 0
-        
-        if is_win:
-            self.daily_stats["wins"] += 1
-            self.consecutive_losses = 0
-        else:
-            self.daily_stats["losses"] += 1
-            self.consecutive_losses += 1
-        
-        self.daily_stats["total_pnl"] += position.realized_pnl
-        
-        # Update peak and drawdown
-        if self.daily_stats["total_pnl"] > self.daily_stats["peak_pnl"]:
-            self.daily_stats["peak_pnl"] = self.daily_stats["total_pnl"]
-        
-        drawdown = self.daily_stats["peak_pnl"] - self.daily_stats["total_pnl"]
-        if drawdown > self.daily_stats["max_drawdown"]:
-            self.daily_stats["max_drawdown"] = drawdown
-        
-        # Update strategy performance
-        trade_result = {
-            "symbol": symbol,
-            "action": position.action,
-            "entry_price": position.entry_price,
-            "exit_price": exit_price,
-            "quantity": position.quantity,
-            "pnl": position.realized_pnl,
-            "entry_time": position.entry_time,
-            "exit_time": current_time,
-            "duration_minutes": position.time_in_trade(current_time),
-            "reason": reason
-        }
-        
-        self.strategy.update_performance(symbol, trade_result)
-        
-        # Send alert
-        self._send_trade_exit_alert(position, exit_price, reason)
-        
-        logger.info(f"Position closed: {symbol} @ ${exit_price:.2f}, PnL=${position.realized_pnl:.2f} ({reason})")
+        try:
+            # Execute real broker close order
+            if self.broker:
+                order = {
+                    "symbol": position.symbol,
+                    "side": "sell" if position.action == "BUY" else "buy",
+                    "qty": position.remaining_quantity,
+                    "order_type": "market"
+                }
+                
+                resp = self.broker.submit_order(order)
+                
+                # Check for errors
+                if isinstance(resp, dict) and (resp.get("error") or resp.get("order_submitted") == False):
+                    logger.error(f"Close order failed for {position.symbol}: {resp.get('error')}")
+                    return False
+                
+                # Wait for fill
+                order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
+                if order_id:
+                    fill_status = self._wait_for_fill(order_id, timeout_seconds=15)
+                    if fill_status:
+                        exit_price = float(fill_status.get('filled_avg_price', exit_price))
+                    else:
+                        logger.error(f"Close order did not fill for {symbol}")
+                        return False
+            
+            # Calculate final P&L
+            if position.action == "BUY":
+                pnl = (exit_price - position.entry_price) * position.remaining_quantity
+            else:
+                pnl = (position.entry_price - exit_price) * position.remaining_quantity
+            
+            position.realized_pnl += pnl
+            total_pnl = position.realized_pnl
+            
+            # Update daily stats
+            self.daily_stats["total_pnl"] += total_pnl
+            if total_pnl > 0:
+                self.daily_stats["wins"] += 1
+                self.consecutive_losses = 0
+            else:
+                self.daily_stats["losses"] += 1
+                self.consecutive_losses += 1
+            
+            # Update peak and drawdown
+            if self.daily_stats["total_pnl"] > self.daily_stats["peak_pnl"]:
+                self.daily_stats["peak_pnl"] = self.daily_stats["total_pnl"]
+            
+            drawdown = self.daily_stats["peak_pnl"] - self.daily_stats["total_pnl"]
+            if drawdown > self.daily_stats["max_drawdown"]:
+                self.daily_stats["max_drawdown"] = drawdown
+            
+            # Send alert
+            self._send_trade_exit_alert(position, exit_price, reason)
+            
+            # Update strategy stats
+            if hasattr(self.strategy, 'record_stop_out') and reason == "Stop loss":
+                self.strategy.record_stop_out(symbol, current_time)
+            
+            if hasattr(self.strategy, 'update_performance'):
+                trade_result = {
+                    "symbol": symbol,
+                    "action": position.action,
+                    "entry_price": position.entry_price,
+                    "exit_price": exit_price,
+                    "quantity": position.quantity,
+                    "pnl": total_pnl,
+                    "entry_time": position.entry_time,
+                    "exit_time": current_time,
+                    "duration_minutes": position.time_in_trade(current_time),
+                    "reason": reason
+                }
+                self.strategy.update_performance(symbol, trade_result)
+            
+            logger.info(f"Position closed: {symbol} @ ${exit_price:.2f}, Total PnL=${total_pnl:.2f} ({reason})")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error closing position for {symbol}: {e}", exc_info=True)
+            return False
     
     def _close_all_positions(self, reason: str, current_time: datetime):
         """Close all open positions"""

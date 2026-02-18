@@ -26,10 +26,18 @@ box_trading:
   # Symbol correlation groups (for risk management)
   # Only 1 position allowed per group simultaneously
   correlation_groups:
-    tech: [AAPL, MSFT, GOOGL, META, NVDA, TSLA]
-    indices: [SPY, QQQ, IWM, DIA]
-    energy: [XLE, XOM, CVX]
-    finance: [XLF, JPM, BAC]
+    tech:
+      - NVDA
+      - MSFT
+      - TSM
+      - CRDO
+    indices:
+      - SPY
+      - QQQ
+    healthcare:
+      - JNJ
+    ev:
+      - TSLA
   
   # =============================================================================
   # BOX ZONE THRESHOLDS
@@ -70,6 +78,7 @@ box_trading:
   base_risk_per_trade: 0.02    # 2% base risk (CONSERVATIVE)
   max_risk_per_trade: 0.04     # 4% maximum (high confidence only)
   min_risk_per_trade: 0.01     # 1% minimum (low confidence)
+  min_risk_reward_ratio: 1.2   # Minimum 1.2:1 R:R for trade entry
   
   # Position limits
   max_positions: 2             # Start VERY conservative
