@@ -99,9 +99,6 @@ class Position:
         self.partial_exits: List[Dict[str, Any]] = []
         self.unrealized_pnl = 0.0
         self.realized_pnl = 0.0
-        self.tier1_hit = False
-        self.tier2_hit = False
-        self.tier3_hit = False
         
     def update_pnl(self, current_price: float):
         """Update unrealized P&L"""
@@ -155,6 +152,7 @@ class BoxTradingRunner:
         self.is_paused = False
         self.pause_until = None
         self.daily_loss_triggered = False
+        self._failed_order_cooldown: Dict[str, datetime] = {}
         
         logger.info("BoxTradingRunner initialized with config: %s", config_path)
     
@@ -199,71 +197,6 @@ class BoxTradingRunner:
             logger.error("Failed to initialize broker: %s", e)
             self.broker = None
     
-    def _get_account_equity(self) -> float:
-        """Get current account equity with caching"""
-        # Cache equity for 60 seconds to avoid rate limiting
-        if not hasattr(self, '_equity_cache'):
-            self._equity_cache = {'value': 10000.0, 'timestamp': 0}
-        
-        current_time = time.time()
-        if current_time - self._equity_cache['timestamp'] > 60:
-            try:
-                if self.broker and hasattr(self.broker, 'client'):
-                    account = self.broker.client.get_account()
-                    self._equity_cache['value'] = float(account.equity)
-                    self._equity_cache['timestamp'] = current_time
-                    logger.debug(f"Account equity refreshed: ${self._equity_cache['value']:.2f}")
-            except Exception as e:
-                logger.error(f"Failed to get account equity: {e}")
-        
-        return self._equity_cache['value']
-    
-    def _wait_for_fill(self, order_id: str, timeout_seconds: int = 30) -> Optional[Dict]:
-        """Wait for order to fill with timeout"""
-        if not self.broker:
-            return None
-        
-        start_time = time.time()
-        while time.time() - start_time < timeout_seconds:
-            try:
-                status = self.broker.get_order_status(order_id)
-                if status:
-                    order_status = status.get('status', '').lower()
-                    if order_status in ['filled', 'partially_filled']:
-                        return status
-                    elif order_status in ['cancelled', 'expired', 'rejected']:
-                        logger.error(f"Order {order_id} failed with status: {order_status}")
-                        return None
-            except Exception as e:
-                logger.error(f"Error checking order status: {e}")
-            
-            time.sleep(0.5)
-        
-        logger.warning(f"Order {order_id} fill timeout after {timeout_seconds}s")
-        return None
-    
-    def _can_open_position_for_symbol(self, symbol: str) -> bool:
-        """Check if we can open position considering correlation groups"""
-        correlation_groups = self.config.get("correlation_groups", {})
-        max_correlated = self.config.get("max_correlated_positions", 1)
-        
-        # Find which group this symbol belongs to
-        symbol_group = None
-        for group_name, symbols in correlation_groups.items():
-            if symbol in symbols:
-                symbol_group = group_name
-                break
-        
-        # If symbol not in any group, allow it
-        if not symbol_group:
-            return True
-        
-        # Count how many positions we have in this group
-        group_symbols = correlation_groups[symbol_group]
-        positions_in_group = sum(1 for sym in self.positions if sym in group_symbols)
-        
-        return positions_in_group < max_correlated
-    
     def _is_trading_allowed(self, current_time: datetime) -> Tuple[bool, Optional[str]]:
         """
         Check if trading is allowed right now
@@ -287,7 +220,6 @@ class BoxTradingRunner:
             max_daily_loss = circuit_config.get("max_daily_loss_percent", 0.05)
             
             if self.daily_stats["total_pnl"] < 0:
-                # Get account equity from broker
                 account_equity = self._get_account_equity()
                 loss_percent = abs(self.daily_stats["total_pnl"]) / account_equity
                 
@@ -325,11 +257,10 @@ class BoxTradingRunner:
         avoid_first = self.config.get("avoid_first_minutes", 30)
         if avoid_first > 0:
             from datetime import time as dtime
-            market_open_dt = datetime.combine(now_et.date(), dtime(9, 30))
-            avoid_until_dt = market_open_dt + timedelta(minutes=avoid_first)
-            avoid_until = avoid_until_dt.time()
+            market_open = dtime(9, 30)
+            avoid_until = dtime(9, 30 + avoid_first // 60, avoid_first % 60)
             
-            if dtime(9, 30) <= current_time_only < avoid_until:
+            if market_open <= current_time_only < avoid_until:
                 return (False, f"Avoiding first {avoid_first} minutes")
         
         # Stop new trades before close
@@ -357,7 +288,7 @@ class BoxTradingRunner:
     def _pause_trading(self, duration_minutes: int, reason: str):
         """Pause trading for specified duration"""
         self.is_paused = True
-        self.pause_until = datetime.now() + timedelta(minutes=duration_minutes)
+        self.pause_until = datetime.now(ZoneInfo("America/New_York")) + timedelta(minutes=duration_minutes)
         
         logger.warning(f"Trading paused for {duration_minutes} minutes (reason: {reason})")
         
@@ -440,23 +371,20 @@ class BoxTradingRunner:
         self._send_alert(message, kind=kind)
     
     def _check_and_execute_signals(self, current_time: datetime):
-        """Check for signals and execute trades"""
-        # Check if trading allowed
+        """Check for new trade signals"""
+        # Check if trading is allowed
         allowed, reason = self._is_trading_allowed(current_time)
         if not allowed:
             logger.debug(f"Trading not allowed: {reason}")
             return
         
-        # Get symbols to scan
         symbols = self.config.get("symbols", [])
-        
-        # Check max positions
         max_positions = self.config.get("max_positions", 2)
         
-        # Adjust based on performance
-        stats = self.strategy.get_performance_stats()
-        if stats["total_trades"] >= 10:
-            win_rate = stats["win_rate"]
+        # Adaptive position limit
+        if self.daily_stats["trades"] >= 5:
+            total = self.daily_stats["wins"] + self.daily_stats["losses"]
+            win_rate = self.daily_stats["wins"] / total if total > 0 else 0
             
             if win_rate > 0.65:
                 max_positions = self.config.get("max_positions_if_winning", 3)
@@ -467,6 +395,9 @@ class BoxTradingRunner:
             logger.debug(f"Max positions reached: {len(self.positions)}/{max_positions}")
             return
         
+        signals_found = 0
+        signals_rejected = 0
+        
         # Scan symbols for signals
         for symbol in symbols:
             # Skip if already have position
@@ -474,11 +405,11 @@ class BoxTradingRunner:
                 continue
             
             try:
-                # Get recent data (5-minute bars for last few hours)
-                # In production, this would come from live data feed
+                # Get recent data
                 recent_bars = self._get_recent_bars(symbol, bars=50)
                 
                 if not recent_bars:
+                    logger.debug(f"No recent bars for {symbol}")
                     continue
                 
                 current_price = recent_bars[-1].get("close", 0)
@@ -495,25 +426,37 @@ class BoxTradingRunner:
                 )
                 
                 if signal and signal.action in ["BUY", "SELL"]:
+                    signals_found += 1
+                    
                     # Check confidence threshold
                     min_confidence = 0.75
                     if signal.confidence < min_confidence:
-                        logger.debug(f"{symbol} signal confidence too low: {signal.confidence:.2f}")
+                        signals_rejected += 1
+                        logger.info(f"📊 {symbol} signal rejected: confidence {signal.confidence:.2f} < {min_confidence}")
                         continue
+                    
+                    logger.info(f"📊 Signal detected: {signal.action} {symbol} @ ${current_price:.2f}, "
+                              f"Confidence={signal.confidence:.2f}, R:R={signal.risk_reward_ratio:.2f}")
                     
                     # Execute trade
                     self._execute_entry(signal, current_time)
                     
             except Exception as e:
                 logger.error(f"Error checking signal for {symbol}: {e}")
+        
+        if signals_found > 0:
+            logger.info(f"Signal scan complete: {signals_found} signals found, {signals_rejected} rejected by confidence filter")
     
     def _get_recent_bars(self, symbol: str, bars: int = 50) -> List[Dict[str, Any]]:
         """Get recent bar data for symbol"""
         try:
-            # Get intraday data
+            end_date = datetime.now().strftime("%Y-%m-%d")
+            start_date = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
+            
             hist_data = self.data_provider.get_historical_data(
                 symbol=symbol,
-                period="1d",
+                start=start_date,
+                end=end_date,
                 interval="5m"
             )
             
@@ -526,9 +469,60 @@ class BoxTradingRunner:
             logger.error(f"Error getting recent bars for {symbol}: {e}")
             return []
     
+    def _wait_for_fill(self, order_id: str, timeout_seconds: int = 30) -> Optional[Dict]:
+        """Wait for order to fill with timeout"""
+        if not self.broker:
+            return None
+        
+        start_time = time.time()
+        while time.time() - start_time < timeout_seconds:
+            try:
+                status = self.broker.get_order_status(order_id)
+                if status:
+                    order_status = status.get('status', '').lower()
+                    if order_status in ['filled', 'partially_filled']:
+                        return status
+                    elif order_status in ['cancelled', 'expired', 'rejected']:
+                        logger.error(f"Order {order_id} failed with status: {order_status}")
+                        return None
+            except Exception as e:
+                logger.error(f"Error checking order status: {e}")
+            
+            time.sleep(0.5)
+        
+        logger.warning(f"Order {order_id} fill timeout after {timeout_seconds}s")
+        return None
+    
+    def _can_open_position_for_symbol(self, symbol: str) -> bool:
+        """Check if we can open position considering correlation groups"""
+        correlation_groups = self.config.get("correlation_groups", {})
+        max_correlated = self.config.get("max_correlated_positions", 1)
+        
+        symbol_group = None
+        for group_name, symbols in correlation_groups.items():
+            if symbol in symbols:
+                symbol_group = group_name
+                break
+        
+        if not symbol_group:
+            return True
+        
+        group_symbols = correlation_groups[symbol_group]
+        positions_in_group = sum(1 for sym in self.positions if sym in group_symbols)
+        
+        return positions_in_group < max_correlated
+    
     def _execute_entry(self, signal: TradeSignal, current_time: datetime):
         """Execute trade entry with real broker orders"""
         try:
+            # Check cooldown from failed orders
+            if signal.symbol in self._failed_order_cooldown:
+                cooldown_until = self._failed_order_cooldown[signal.symbol]
+                if datetime.now(ZoneInfo("America/New_York")) < cooldown_until:
+                    return
+                else:
+                    del self._failed_order_cooldown[signal.symbol]
+            
             # Check correlation groups
             if not self._can_open_position_for_symbol(signal.symbol):
                 logger.info(f"Skipping {signal.symbol} - correlation group limit reached")
@@ -556,28 +550,24 @@ class BoxTradingRunner:
             logger.info(f"Submitting {signal.action} order for {signal.symbol}: "
                        f"{position_size} shares @ ${signal.current_price:.2f}")
             
-            # Submit order to broker
             resp = self.broker.submit_order(order)
             
-            # Check for errors
             if isinstance(resp, dict):
                 if resp.get("error") or resp.get("order_submitted") == False:
                     logger.error(f"Order failed for {signal.symbol}: {resp.get('error', 'Unknown error')}")
+                    self._failed_order_cooldown[signal.symbol] = datetime.now(ZoneInfo("America/New_York")) + timedelta(minutes=10)
                     return
             
-            # Get order ID (broker may return dict or object)
             order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
             if not order_id:
                 logger.error(f"No order ID received for {signal.symbol}")
                 return
             
-            # Wait for fill confirmation
             fill_status = self._wait_for_fill(order_id, timeout_seconds=30)
             if not fill_status:
                 logger.error(f"Order {order_id} did not fill for {signal.symbol}")
                 return
             
-            # Get actual fill price
             filled_price = float(fill_status.get('filled_avg_price', signal.current_price))
             filled_qty = int(float(fill_status.get('filled_qty', position_size)))
             
@@ -608,8 +598,26 @@ class BoxTradingRunner:
         except Exception as e:
             logger.error(f"Error executing entry for {signal.symbol}: {e}", exc_info=True)
     
+    def _get_account_equity(self) -> float:
+        """Get current account equity with caching"""
+        if not hasattr(self, '_equity_cache'):
+            self._equity_cache = {'value': 10000.0, 'timestamp': 0}
+        
+        current_time = time.time()
+        if current_time - self._equity_cache['timestamp'] > 60:
+            try:
+                if self.broker and hasattr(self.broker, 'client'):
+                    account = self.broker.client.get_account()
+                    self._equity_cache['value'] = float(account.equity)
+                    self._equity_cache['timestamp'] = current_time
+                    logger.debug(f"Account equity refreshed: ${self._equity_cache['value']:.2f}")
+            except Exception as e:
+                logger.error(f"Failed to get account equity: {e}")
+        
+        return self._equity_cache['value']
+    
     def _calculate_position_size(self, signal: TradeSignal) -> int:
-        """Calculate position size based on risk"""
+        """Calculate position size based on risk, with buying power safety checks"""
         account_equity = self._get_account_equity()
         
         # Get risk per trade
@@ -637,6 +645,28 @@ class BoxTradingRunner:
             return 0
         
         shares = int(risk_amount / stop_distance)
+        
+        # SAFETY: Cap position value at max % of equity (default 25%)
+        max_position_pct = self.config.get("max_position_percent_of_equity", 0.25)
+        max_position_value = account_equity * max_position_pct
+        max_shares_by_value = int(max_position_value / signal.current_price)
+        shares = min(shares, max_shares_by_value)
+        
+        # SAFETY: Check against buying power
+        if self.broker and hasattr(self.broker, 'client'):
+            try:
+                account = self.broker.client.get_account()
+                buying_power = float(account.buying_power)
+                # Use at most 40% of available buying power per trade
+                max_bp_per_trade = buying_power * 0.40
+                max_shares_by_bp = int(max_bp_per_trade / signal.current_price)
+                shares = min(shares, max_shares_by_bp)
+                logger.debug(f"Position sizing for {signal.symbol}: risk_shares={int(risk_amount/stop_distance)}, "
+                           f"value_cap={max_shares_by_value}, bp_cap={max_shares_by_bp}, final={shares}")
+            except Exception as e:
+                logger.warning(f"Could not check buying power: {e}")
+                # Fallback: use conservative position value cap
+                shares = min(shares, max_shares_by_value)
         
         # Ensure at least 1 share
         return max(1, shares)
@@ -668,58 +698,36 @@ class BoxTradingRunner:
                 
                 if should_stop:
                     logger.warning(f"Stop loss hit for {symbol} @ ${current_price:.2f}")
-                    if self._close_position(symbol, current_price, "Stop loss", current_time):
-                        symbols_to_close.append(symbol)
+                    self._close_position(symbol, current_price, "Stop loss", current_time)
+                    symbols_to_close.append(symbol)
+                    
+                    # Record stop out for whipsaw protection
+                    self.strategy.record_stop_out(symbol, current_time)
                     continue
                 
-                # Tiered take profit exits (based on ORIGINAL position size)
-                take_profit_targets = position.take_profit_targets
-                if position.action == "BUY" and len(take_profit_targets) >= 3:
-                    tier1_target = take_profit_targets[0]
-                    tier2_target = take_profit_targets[1]
-                    tier3_target = take_profit_targets[2]
-                    
-                    original_qty = position.quantity
-                    tier1_qty = int(original_qty * 0.50)  # 50% of original
-                    tier2_qty = int(original_qty * 0.30)  # 30% of original
-                    
-                    # Tier 1: Exit 50% of original
-                    if not position.tier1_hit and current_price >= tier1_target:
-                        if self._partial_exit(position, current_price, tier1_qty, "Tier 1 target"):
-                            position.tier1_hit = True
-                    
-                    # Tier 2: Exit 30% of original
-                    if not position.tier2_hit and current_price >= tier2_target and position.tier1_hit:
-                        if self._partial_exit(position, current_price, tier2_qty, "Tier 2 target"):
-                            position.tier2_hit = True
-                    
-                    # Tier 3: Exit remaining
-                    if not position.tier3_hit and current_price >= tier3_target and position.tier2_hit:
-                        if self._close_position(symbol, current_price, "Tier 3 target", current_time):
+                # Check take profit targets
+                for i, target in enumerate(position.take_profit_targets):
+                    if position.action == "BUY" and current_price >= target:
+                        # Hit target
+                        if i == 0:  # First target - partial exit
+                            self._partial_exit(position, current_price, 0.5, f"Target 1 (${target:.2f})")
+                        elif i == 1:  # Second target
+                            self._partial_exit(position, current_price, 0.3, f"Target 2 (${target:.2f})")
+                        else:  # Final target - close
+                            self._close_position(symbol, current_price, f"Target 3 (${target:.2f})", current_time)
                             symbols_to_close.append(symbol)
-                            position.tier3_hit = True
-
-                elif position.action == "SELL" and len(take_profit_targets) >= 3:
-                    tier1_target = take_profit_targets[0]
-                    tier2_target = take_profit_targets[1]
-                    tier3_target = take_profit_targets[2]
+                            break
                     
-                    original_qty = position.quantity
-                    tier1_qty = int(original_qty * 0.50)
-                    tier2_qty = int(original_qty * 0.30)
-                    
-                    if not position.tier1_hit and current_price <= tier1_target:
-                        if self._partial_exit(position, current_price, tier1_qty, "Tier 1 target"):
-                            position.tier1_hit = True
-                    
-                    if not position.tier2_hit and current_price <= tier2_target and position.tier1_hit:
-                        if self._partial_exit(position, current_price, tier2_qty, "Tier 2 target"):
-                            position.tier2_hit = True
-                    
-                    if not position.tier3_hit and current_price <= tier3_target and position.tier2_hit:
-                        if self._close_position(symbol, current_price, "Tier 3 target", current_time):
+                    elif position.action == "SELL" and current_price <= target:
+                        # Hit target
+                        if i == 0:  # First target - partial exit
+                            self._partial_exit(position, current_price, 0.5, f"Target 1 (${target:.2f})")
+                        elif i == 1:  # Second target
+                            self._partial_exit(position, current_price, 0.3, f"Target 2 (${target:.2f})")
+                        else:  # Final target - close
+                            self._close_position(symbol, current_price, f"Target 3 (${target:.2f})", current_time)
                             symbols_to_close.append(symbol)
-                            position.tier3_hit = True
+                            break
                 
                 # Check time-based exit
                 max_hold_time = self.config.get("max_hold_time_minutes", 120)
@@ -727,8 +735,8 @@ class BoxTradingRunner:
                 
                 if time_in_trade >= max_hold_time and position.unrealized_pnl <= 0:
                     logger.info(f"Time-based exit for {symbol} after {time_in_trade:.0f} minutes")
-                    if self._close_position(symbol, current_price, "Time limit", current_time):
-                        symbols_to_close.append(symbol)
+                    self._close_position(symbol, current_price, "Time limit", current_time)
+                    symbols_to_close.append(symbol)
                 
             except Exception as e:
                 logger.error(f"Error managing position for {symbol}: {e}")
@@ -738,151 +746,158 @@ class BoxTradingRunner:
             if symbol in self.positions:
                 del self.positions[symbol]
     
-    def _partial_exit(self, position: Position, exit_price: float, exit_quantity: int, reason: str) -> bool:
-        """Execute partial exit with real broker order"""
-        if exit_quantity <= 0:
-            return False
+    def _partial_exit(self, position: Position, exit_price: float, percent: float, reason: str):
+        """Execute partial exit"""
+        exit_quantity = int(position.remaining_quantity * percent)
         
-        try:
-            # Execute real broker order
-            if self.broker:
-                order = {
-                    "symbol": position.symbol,
-                    "side": "sell" if position.action == "BUY" else "buy",
-                    "qty": exit_quantity,
-                    "order_type": "market"
-                }
-                
-                resp = self.broker.submit_order(order)
-                
-                # Check for errors
-                if isinstance(resp, dict) and (resp.get("error") or resp.get("order_submitted") == False):
-                    logger.error(f"Partial exit order failed for {position.symbol}: {resp.get('error')}")
-                    return False
-                
-                # Wait for fill
-                order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
-                if order_id:
-                    fill_status = self._wait_for_fill(order_id, timeout_seconds=15)
-                    if fill_status:
-                        exit_price = float(fill_status.get('filled_avg_price', exit_price))
-                        exit_quantity = int(float(fill_status.get('filled_qty', exit_quantity)))
-            
-            # Calculate P&L for this portion
-            if position.action == "BUY":
-                pnl = (exit_price - position.entry_price) * exit_quantity
-            else:
-                pnl = (position.entry_price - exit_price) * exit_quantity
-            
-            position.realized_pnl += pnl
-            position.remaining_quantity -= exit_quantity
-            
-            position.partial_exits.append({
-                "price": exit_price,
-                "quantity": exit_quantity,
-                "pnl": pnl,
-                "reason": reason,
-                "time": datetime.now(ZoneInfo("America/New_York"))
-            })
-            
-            logger.info(f"Partial exit for {position.symbol}: {exit_quantity} shares @ ${exit_price:.2f}, "
-                       f"PnL=${pnl:.2f} ({reason})")
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error in partial exit for {position.symbol}: {e}")
-            return False
+        if exit_quantity <= 0:
+            return
+        
+        # Calculate P&L for this portion
+        if position.action == "BUY":
+            pnl = (exit_price - position.entry_price) * exit_quantity
+        else:
+            pnl = (position.entry_price - exit_price) * exit_quantity
+        
+        position.realized_pnl += pnl
+        position.remaining_quantity -= exit_quantity
+        
+        position.partial_exits.append({
+            "price": exit_price,
+            "quantity": exit_quantity,
+            "pnl": pnl,
+            "reason": reason,
+            "time": datetime.now()
+        })
+        
+        logger.info(f"Partial exit for {position.symbol}: {exit_quantity} shares @ ${exit_price:.2f}, "
+                   f"PnL=${pnl:.2f} ({reason})")
     
-    def _close_position(self, symbol: str, exit_price: float, reason: str, current_time: datetime) -> bool:
-        """Close position with real broker order"""
+    def _close_position(self, symbol: str, exit_price: float, reason: str, current_time: datetime):
+        """Close position"""
         position = self.positions.get(symbol)
         
         if not position:
-            return False
+            return
         
+        # Calculate final P&L
+        if position.action == "BUY":
+            pnl = (exit_price - position.entry_price) * position.remaining_quantity
+        else:
+            pnl = (position.entry_price - exit_price) * position.remaining_quantity
+        
+        position.realized_pnl += pnl
+        
+        # Update stats
+        is_win = position.realized_pnl > 0
+        
+        if is_win:
+            self.daily_stats["wins"] += 1
+            self.consecutive_losses = 0
+        else:
+            self.daily_stats["losses"] += 1
+            self.consecutive_losses += 1
+        
+        self.daily_stats["total_pnl"] += position.realized_pnl
+        
+        # Update peak and drawdown
+        if self.daily_stats["total_pnl"] > self.daily_stats["peak_pnl"]:
+            self.daily_stats["peak_pnl"] = self.daily_stats["total_pnl"]
+        
+        drawdown = self.daily_stats["peak_pnl"] - self.daily_stats["total_pnl"]
+        if drawdown > self.daily_stats["max_drawdown"]:
+            self.daily_stats["max_drawdown"] = drawdown
+        
+        # Update strategy performance
+        trade_result = {
+            "symbol": symbol,
+            "action": position.action,
+            "entry_price": position.entry_price,
+            "exit_price": exit_price,
+            "quantity": position.quantity,
+            "pnl": position.realized_pnl,
+            "entry_time": position.entry_time,
+            "exit_time": current_time,
+            "duration_minutes": position.time_in_trade(current_time),
+            "reason": reason
+        }
+        
+        self.strategy.update_performance(symbol, trade_result)
+        
+        # Send alert
+        self._send_trade_exit_alert(position, exit_price, reason)
+        
+        # Record to trade journal
+        self._record_trade(position, exit_price, reason, position.realized_pnl)
+        
+        logger.info(f"Position closed: {symbol} @ ${exit_price:.2f}, PnL=${position.realized_pnl:.2f} ({reason})")
+    
+    def _record_trade(self, position: Position, exit_price: float, exit_reason: str, total_pnl: float):
+        """Record completed trade to journal file"""
         try:
-            # Execute real broker close order
-            if self.broker:
-                order = {
-                    "symbol": position.symbol,
-                    "side": "sell" if position.action == "BUY" else "buy",
-                    "qty": position.remaining_quantity,
-                    "order_type": "market"
-                }
-                
-                resp = self.broker.submit_order(order)
-                
-                # Check for errors
-                if isinstance(resp, dict) and (resp.get("error") or resp.get("order_submitted") == False):
-                    logger.error(f"Close order failed for {position.symbol}: {resp.get('error')}")
-                    return False
-                
-                # Wait for fill
-                order_id = resp.get('id') if isinstance(resp, dict) else (getattr(resp, 'id', None) if resp else None)
-                if order_id:
-                    fill_status = self._wait_for_fill(order_id, timeout_seconds=15)
-                    if fill_status:
-                        exit_price = float(fill_status.get('filled_avg_price', exit_price))
-                    else:
-                        logger.error(f"Close order did not fill for {symbol}")
-                        return False
+            journal_path = Path("data/box_trading_trades.json")
+            journal_path.parent.mkdir(parents=True, exist_ok=True)
             
-            # Calculate final P&L
-            if position.action == "BUY":
-                pnl = (exit_price - position.entry_price) * position.remaining_quantity
+            trade_record = {
+                "trade_id": f"BOX_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{position.symbol}",
+                "timestamp": datetime.now().isoformat(),
+                "symbol": position.symbol,
+                "action": position.action,
+                "entry_price": position.entry_price,
+                "entry_time": position.entry_time.isoformat(),
+                "exit_price": exit_price,
+                "exit_time": datetime.now().isoformat(),
+                "quantity": position.quantity,
+                "remaining_quantity": position.remaining_quantity,
+                "stop_loss": position.stop_loss,
+                "take_profit_targets": position.take_profit_targets,
+                "exit_reason": exit_reason,
+                "pnl": total_pnl,
+                "pnl_percent": (total_pnl / (position.entry_price * position.quantity)) * 100 if position.quantity > 0 else 0,
+                "hold_time_minutes": position.time_in_trade(datetime.now()),
+                "partial_exits": len(position.partial_exits),
+                "confidence": position.signal.confidence if position.signal else 0,
+                "risk_reward": position.signal.risk_reward_ratio if position.signal else 0,
+                "box_levels": {
+                    "prev_high": position.signal.box_levels.prev_day_high,
+                    "prev_low": position.signal.box_levels.prev_day_low,
+                    "midpoint": position.signal.box_levels.midpoint
+                } if position.signal and position.signal.box_levels else {}
+            }
+            
+            # Load existing journal
+            if journal_path.exists():
+                with open(journal_path, 'r') as f:
+                    journal = json.load(f)
             else:
-                pnl = (position.entry_price - exit_price) * position.remaining_quantity
+                journal = {"trades": [], "summary": {}}
             
-            position.realized_pnl += pnl
-            total_pnl = position.realized_pnl
+            journal["trades"].append(trade_record)
             
-            # Update daily stats
-            self.daily_stats["total_pnl"] += total_pnl
-            if total_pnl > 0:
-                self.daily_stats["wins"] += 1
-                self.consecutive_losses = 0
-            else:
-                self.daily_stats["losses"] += 1
-                self.consecutive_losses += 1
+            # Update summary
+            trades = journal["trades"]
+            total_trades = len(trades)
+            wins = sum(1 for t in trades if t["pnl"] > 0)
+            losses = sum(1 for t in trades if t["pnl"] <= 0)
+            total_pnl_all = sum(t["pnl"] for t in trades)
             
-            # Update peak and drawdown
-            if self.daily_stats["total_pnl"] > self.daily_stats["peak_pnl"]:
-                self.daily_stats["peak_pnl"] = self.daily_stats["total_pnl"]
+            journal["summary"] = {
+                "total_trades": total_trades,
+                "wins": wins,
+                "losses": losses,
+                "win_rate": wins / total_trades if total_trades > 0 else 0,
+                "total_pnl": total_pnl_all,
+                "avg_pnl": total_pnl_all / total_trades if total_trades > 0 else 0,
+                "last_updated": datetime.now().isoformat()
+            }
             
-            drawdown = self.daily_stats["peak_pnl"] - self.daily_stats["total_pnl"]
-            if drawdown > self.daily_stats["max_drawdown"]:
-                self.daily_stats["max_drawdown"] = drawdown
+            with open(journal_path, 'w') as f:
+                json.dump(journal, f, indent=2, default=str)
             
-            # Send alert
-            self._send_trade_exit_alert(position, exit_price, reason)
-            
-            # Update strategy stats
-            if hasattr(self.strategy, 'record_stop_out') and reason == "Stop loss":
-                self.strategy.record_stop_out(symbol, current_time)
-            
-            if hasattr(self.strategy, 'update_performance'):
-                trade_result = {
-                    "symbol": symbol,
-                    "action": position.action,
-                    "entry_price": position.entry_price,
-                    "exit_price": exit_price,
-                    "quantity": position.quantity,
-                    "pnl": total_pnl,
-                    "entry_time": position.entry_time,
-                    "exit_time": current_time,
-                    "duration_minutes": position.time_in_trade(current_time),
-                    "reason": reason
-                }
-                self.strategy.update_performance(symbol, trade_result)
-            
-            logger.info(f"Position closed: {symbol} @ ${exit_price:.2f}, Total PnL=${total_pnl:.2f} ({reason})")
-            
-            return True
+            logger.info(f"Trade recorded: {trade_record['trade_id']}, PnL=${total_pnl:.2f}")
             
         except Exception as e:
-            logger.error(f"Error closing position for {symbol}: {e}", exc_info=True)
-            return False
+            logger.error(f"Error recording trade: {e}")
     
     def _close_all_positions(self, reason: str, current_time: datetime):
         """Close all open positions"""
@@ -891,18 +906,28 @@ class BoxTradingRunner:
         
         logger.info(f"Closing all positions: {reason}")
         
+        successfully_closed = []
         for symbol in list(self.positions.keys()):
             try:
                 current_price = self.data_provider.get_last_price(symbol)
                 
                 if current_price and current_price > 0:
                     self._close_position(symbol, current_price, reason, current_time)
+                    successfully_closed.append(symbol)
+                else:
+                    logger.error(f"No price available for {symbol} - cannot close")
                     
             except Exception as e:
                 logger.error(f"Error closing position for {symbol}: {e}")
         
-        # Clear positions dict
-        self.positions.clear()
+        # Only remove successfully closed positions
+        for symbol in successfully_closed:
+            if symbol in self.positions:
+                del self.positions[symbol]
+        
+        remaining = len(self.positions)
+        if remaining > 0:
+            logger.warning(f"⚠️ {remaining} positions could not be closed: {list(self.positions.keys())}")
     
     def _send_daily_summary(self):
         """Send end of day summary"""
@@ -976,7 +1001,7 @@ class BoxTradingRunner:
     def run(self):
         """Main execution loop"""
         self.running = True
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(ZoneInfo("America/New_York"))
         
         # Track 4-week validation reminder
         self.validation_reminder_sent = False
@@ -1006,7 +1031,7 @@ class BoxTradingRunner:
         
         try:
             while self.running:
-                current_time = datetime.now()
+                current_time = datetime.now(ZoneInfo("America/New_York"))
                 
                 # Check if new day - reset daily stats
                 if current_time.date() != last_daily_reset:
@@ -1076,7 +1101,7 @@ class BoxTradingRunner:
             # Close all positions on shutdown
             if self.positions:
                 logger.info("Closing all positions before shutdown")
-                self._close_all_positions("Bot shutdown", datetime.now())
+                self._close_all_positions("Bot shutdown", datetime.now(ZoneInfo("America/New_York")))
             
             logger.info("Box Trading Bot stopped")
             
